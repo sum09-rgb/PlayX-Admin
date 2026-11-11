@@ -54,11 +54,12 @@ onAuthStateChanged(auth, async (user) => {
     "Exists: " + adminSnap.exists() +
     " | Active: " + String(adminSnap.data()?.active);
 
-        if (!adminSnap.exists() || adminSnap.data().active !== true) {
-            await signOut(auth);
-            $("message").textContent =
-                "This account is not authorized as an admin.";
-            return;
+        if (!adminSnap.exists() || adminSnap.data()?.active !== true) {
+    $("message").textContent =
+        "Exists: " + adminSnap.exists() +
+        " | Active: " + String(adminSnap.data()?.active);
+    await signOut(auth);
+    return;
         }
 
         loginView.hidden = true;
