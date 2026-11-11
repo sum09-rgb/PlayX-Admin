@@ -157,7 +157,7 @@ onAuthStateChanged(auth, async (user) => {
     } catch (error) {
         console.error("Admin verification error:", error);
         await signOut(auth);
-        $("message").textContent = "Admin verification failed.";
+        $("message").textContent = error.code + ": " + error.message;
     }
 });
 
