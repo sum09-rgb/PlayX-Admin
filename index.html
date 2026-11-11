@@ -1,0 +1,62 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlayX Admin</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <section id="loginView">
+        <div class="login-card">
+            <h1>PlayX <span>Admin</span></h1>
+            <p>Management Dashboard</p>
+
+            <label>Email Address</label>
+            <input id="adminEmail" type="email"
+                placeholder="Admin email">
+
+            <label>Password</label>
+            <input id="adminPassword" type="password"
+                placeholder="Admin password">
+
+            <button id="loginBtn">Admin Login</button>
+
+            <p id="message"></p>
+        </div>
+    </section>
+
+    <section id="dashboardView" hidden>
+        <header>
+            <h2>PlayX Admin</h2>
+            <button id="logoutBtn">Logout</button>
+        </header>
+
+        <main>
+            <h1>Welcome, Admin</h1>
+            <p>Manage your PlayX tournament platform.</p>
+
+            <div class="admin-grid">
+                <div class="admin-card">
+                    <h3>Tournaments</h3>
+                    <p>Manage all tournaments.</p>
+                </div>
+
+                <div class="admin-card">
+                    <h3>Players</h3>
+                    <p>Manage player accounts.</p>
+                </div>
+
+                <div class="admin-card">
+                    <h3>Results</h3>
+                    <p>Manage tournament results.</p>
+                </div>
+            </div>
+        </main>
+    </section>
+
+    <script type="module" src="script.js"></script>
+</body>
+</html>
