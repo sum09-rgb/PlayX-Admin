@@ -17,7 +17,15 @@ import {
     serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-const $ = (id) => document.getElementById(id);
+const $ = (id) => {
+    const element = document.getElementById(id);
+
+    if (!element) {
+        throw new Error("Missing HTML element: " + id);
+    }
+
+    return element;
+};
 
 const loginView = $("loginView");
 const dashboardView = $("dashboardView");
@@ -202,4 +210,3 @@ $("createTournamentBtn").onclick = async () => {
 $("logoutBtn").onclick = async () => {
     await signOut(auth);
 };
-        
