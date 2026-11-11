@@ -106,8 +106,8 @@ onAuthStateChanged(auth, async (user) => {
     if (!user) {
         loginView.hidden = false;
         dashboardView.hidden = true;
-        return;
       await loadTournaments();
+        return;
     }
 
     try {
@@ -168,4 +168,4 @@ $("createTournamentBtn").onclick = async () => {
 $("logoutBtn").onclick = async () => {
     await signOut(auth);
 };
-    
+        
