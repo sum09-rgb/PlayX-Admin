@@ -155,9 +155,9 @@ onAuthStateChanged(auth, async (user) => {
         await loadPlayers();
 
     } catch (error) {
-        console.error("Admin verification error:", error);
-        await signOut(auth);
-        $("message").textContent = error.code + ": " + error.message;
+    console.error("Admin verification error:", error);
+    alert("Admin error: " + error.message);
+    await signOut(auth);
     }
 });
 
@@ -202,3 +202,4 @@ $("createTournamentBtn").onclick = async () => {
 $("logoutBtn").onclick = async () => {
     await signOut(auth);
 };
+        
