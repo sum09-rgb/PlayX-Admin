@@ -50,6 +50,10 @@ onAuthStateChanged(auth, async (user) => {
         const adminRef = doc(db, "admins", user.uid);
         const adminSnap = await getDoc(adminRef);
 
+      $("message").textContent =
+    "Exists: " + adminSnap.exists() +
+    " | Active: " + String(adminSnap.data()?.active);
+
         if (!adminSnap.exists() || adminSnap.data().active !== true) {
             await signOut(auth);
             $("message").textContent =
