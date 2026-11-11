@@ -22,6 +22,7 @@ const $ = (id) => document.getElementById(id);
 const loginView = $("loginView");
 const dashboardView = $("dashboardView");
 
+// ADMIN LOGIN
 $("loginBtn").onclick = async () => {
     const email = $("adminEmail").value.trim();
     const password = $("adminPassword").value;
@@ -31,28 +32,21 @@ $("loginBtn").onclick = async () => {
         return;
     }
 
-    $("loginBtn").disabled = true;
-    $("message").textContent = "Checking account...";
-
     try {
         await signInWithEmailAndPassword(auth, email, password);
     } catch (error) {
         console.error(error);
         $("message").textContent = "Login failed. Check your details.";
-    } finally {
-        $("loginBtn").disabled = false;
     }
 };
 
+// LOAD TOURNAMENTS
 async function loadTournaments() {
     const list = $("tournamentList");
     list.textContent = "Loading tournaments...";
 
     try {
-        const snapshot = await getDocs(
-            collection(db, "tournaments")
-        );
-
+        const snapshot = await getDocs(collection(db, "tournaments"));
         list.innerHTML = "";
 
         if (snapshot.empty) {
@@ -62,7 +56,6 @@ async function loadTournaments() {
 
         snapshot.forEach((item) => {
             const data = item.data();
-
             const card = document.createElement("div");
 
             const title = document.createElement("h3");
@@ -102,10 +95,46 @@ async function loadTournaments() {
     }
 }
 
+// LOAD REGISTERED PLAYERS
+async function loadPlayers() {
+    const list = $("playerList");
+    list.textContent = "Loading players...";
+
+    try {
+        const snapshot = await getDocs(collection(db, "users"));
+        list.innerHTML = "";
+
+        if (snapshot.empty) {
+            list.textContent = "No registered players yet.";
+            return;
+        }
+
+        snapshot.forEach((item) => {
+            const data = item.data();
+
+            const player = document.createElement("div");
+
+            const name = document.createElement("h3");
+            name.textContent = data.name || "Unknown Player";
+
+            const email = document.createElement("p");
+            email.textContent = data.email || "No email";
+
+            player.append(name, email);
+            list.appendChild(player);
+        });
+
+    } catch (error) {
+        console.error(error);
+        list.textContent = "Could not load players.";
+    }
+}
+
+// CHECK ADMIN ACCESS
 onAuthStateChanged(auth, async (user) => {
     if (!user) {
         loginView.hidden = false;
-        dashboardView.hidden = true;      
+        dashboardView.hidden = true;
         return;
     }
 
@@ -121,7 +150,9 @@ onAuthStateChanged(auth, async (user) => {
 
         loginView.hidden = true;
         dashboardView.hidden = false;
+
         await loadTournaments();
+        await loadPlayers();
 
     } catch (error) {
         console.error("Admin verification error:", error);
@@ -130,6 +161,7 @@ onAuthStateChanged(auth, async (user) => {
     }
 });
 
+// CREATE TOURNAMENT
 $("createTournamentBtn").onclick = async () => {
     const name = $("tournamentName").value.trim();
     const game = $("gameName").value.trim();
@@ -139,8 +171,7 @@ $("createTournamentBtn").onclick = async () => {
 
     if (!name || !game || entryFee === "" ||
         prizePool === "" || maxPlayers === "") {
-        $("tournamentMessage").textContent =
-            "Please fill all fields.";
+        $("tournamentMessage").textContent = "Please fill all fields.";
         return;
     }
 
@@ -157,6 +188,7 @@ $("createTournamentBtn").onclick = async () => {
 
         $("tournamentMessage").textContent =
             "Tournament created successfully!";
+
         await loadTournaments();
 
     } catch (error) {
@@ -166,7 +198,7 @@ $("createTournamentBtn").onclick = async () => {
     }
 };
 
+// ADMIN LOGOUT
 $("logoutBtn").onclick = async () => {
     await signOut(auth);
 };
-            
