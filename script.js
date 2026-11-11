@@ -105,8 +105,7 @@ async function loadTournaments() {
 onAuthStateChanged(auth, async (user) => {
     if (!user) {
         loginView.hidden = false;
-        dashboardView.hidden = true;
-      await loadTournaments();
+        dashboardView.hidden = true;      
         return;
     }
 
@@ -122,6 +121,7 @@ onAuthStateChanged(auth, async (user) => {
 
         loginView.hidden = true;
         dashboardView.hidden = false;
+        await loadTournaments();
 
     } catch (error) {
         console.error("Admin verification error:", error);
@@ -168,4 +168,3 @@ $("createTournamentBtn").onclick = async () => {
 $("logoutBtn").onclick = async () => {
     await signOut(auth);
 };
-        
