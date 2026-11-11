@@ -12,6 +12,8 @@ import {
     getDoc,
     collection,
     addDoc,
+    getDocs,
+    deleteDoc,
     serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
@@ -42,11 +44,70 @@ $("loginBtn").onclick = async () => {
     }
 };
 
+async function loadTournaments() {
+    const list = $("tournamentList");
+    list.textContent = "Loading tournaments...";
+
+    try {
+        const snapshot = await getDocs(
+            collection(db, "tournaments")
+        );
+
+        list.innerHTML = "";
+
+        if (snapshot.empty) {
+            list.textContent = "No tournaments created yet.";
+            return;
+        }
+
+        snapshot.forEach((item) => {
+            const data = item.data();
+
+            const card = document.createElement("div");
+
+            const title = document.createElement("h3");
+            title.textContent = data.name || "Untitled";
+
+            const details = document.createElement("p");
+            details.textContent =
+                "Game: " + data.game +
+                " | Entry: " + data.entryFee +
+                " | Prize: " + data.prizePool +
+                " | Players: " + data.maxPlayers;
+
+            const status = document.createElement("p");
+            status.textContent = "Status: " + data.status;
+
+            const deleteButton = document.createElement("button");
+            deleteButton.textContent = "Delete Tournament";
+
+            deleteButton.onclick = async () => {
+                if (!confirm("Delete this tournament?")) return;
+
+                try {
+                    await deleteDoc(doc(db, "tournaments", item.id));
+                    await loadTournaments();
+                } catch (error) {
+                    alert("Could not delete tournament.");
+                }
+            };
+
+            card.append(title, details, status, deleteButton);
+            list.appendChild(card);
+        });
+
+    } catch (error) {
+        console.error(error);
+        list.textContent = "Could not load tournaments.";
+    }
+}
+
 onAuthStateChanged(auth, async (user) => {
     if (!user) {
         loginView.hidden = false;
         dashboardView.hidden = true;
         return;
+      await loadTournaments();
     }
 
     try {
@@ -107,3 +168,4 @@ $("createTournamentBtn").onclick = async () => {
 $("logoutBtn").onclick = async () => {
     await signOut(auth);
 };
+    
