@@ -32,7 +32,7 @@ $("loginBtn").onclick = async () => {
     try {
         await signInWithEmailAndPassword(auth, email, password);
     } catch (error) {
-        console.error("Admin login error:", error);
+        console.error(error);
         $("message").textContent = "Login failed. Check your details.";
     } finally {
         $("loginBtn").disabled = false;
@@ -50,16 +50,10 @@ onAuthStateChanged(auth, async (user) => {
         const adminRef = doc(db, "admins", user.uid);
         const adminSnap = await getDoc(adminRef);
 
-      $("message").textContent =
-    "Exists: " + adminSnap.exists() +
-    " | Active: " + String(adminSnap.data()?.active);
-
-        if (!adminSnap.exists() || adminSnap.data()?.active !== true) {
-    $("message").textContent =
-        "Exists: " + adminSnap.exists() +
-        " | Active: " + String(adminSnap.data()?.active);
-    await signOut(auth);
-    return;
+        if (!adminSnap.exists() || adminSnap.data().Active !== true) {
+            await signOut(auth);
+            $("message").textContent = "Admin not authorized.";
+            return;
         }
 
         loginView.hidden = true;
