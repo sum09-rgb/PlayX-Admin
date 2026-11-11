@@ -9,7 +9,10 @@ import {
 
 import {
     doc,
-    getDoc
+    getDoc,
+    collection,
+    addDoc,
+    serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
 const $ = (id) => document.getElementById(id);
@@ -65,6 +68,41 @@ onAuthStateChanged(auth, async (user) => {
         $("message").textContent = "Admin verification failed.";
     }
 });
+
+$("createTournamentBtn").onclick = async () => {
+    const name = $("tournamentName").value.trim();
+    const game = $("gameName").value.trim();
+    const entryFee = $("entryFee").value;
+    const prizePool = $("prizePool").value;
+    const maxPlayers = $("maxPlayers").value;
+
+    if (!name || !game || entryFee === "" ||
+        prizePool === "" || maxPlayers === "") {
+        $("tournamentMessage").textContent =
+            "Please fill all fields.";
+        return;
+    }
+
+    try {
+        await addDoc(collection(db, "tournaments"), {
+            name,
+            game,
+            entryFee: Number(entryFee),
+            prizePool: Number(prizePool),
+            maxPlayers: Number(maxPlayers),
+            status: "open",
+            createdAt: serverTimestamp()
+        });
+
+        $("tournamentMessage").textContent =
+            "Tournament created successfully!";
+
+    } catch (error) {
+        console.error(error);
+        $("tournamentMessage").textContent =
+            "Could not create tournament.";
+    }
+};
 
 $("logoutBtn").onclick = async () => {
     await signOut(auth);
