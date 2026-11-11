@@ -157,6 +157,7 @@ $("createTournamentBtn").onclick = async () => {
 
         $("tournamentMessage").textContent =
             "Tournament created successfully!";
+        await loadTournaments();
 
     } catch (error) {
         console.error(error);
@@ -168,3 +169,4 @@ $("createTournamentBtn").onclick = async () => {
 $("logoutBtn").onclick = async () => {
     await signOut(auth);
 };
+            
