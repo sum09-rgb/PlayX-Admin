@@ -4,341 +4,282 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PlayX Admin</title>
+    <title>PlayX Admin Dashboard</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<!-- LOGIN PAGE -->
+<!-- LOGIN -->
 <section id="loginView" class="login-page">
     <div class="login-card">
         <h1>PLAY<span>X</span></h1>
         <p>ADMIN CONTROL CENTER</p>
 
         <h2>Welcome Back</h2>
-        <p>Sign in to manage your platform.</p>
+        <p>Sign in to manage PlayX.</p>
 
         <label>Email Address</label>
-        <input id="adminEmail" type="email"
-            placeholder="Enter admin email">
+        <input id="adminEmail" type="email" placeholder="Enter admin email">
 
         <label>Password</label>
-        <input id="adminPassword" type="password"
-            placeholder="Enter password">
+        <input id="adminPassword" type="password" placeholder="Enter password">
 
         <button id="loginBtn">Sign In</button>
-        <p id="message"></p>
     </div>
 </section>
 
+<!-- DASHBOARD -->
+<div id="dashboardView" class="dashboard" hidden>
 
-<!-- ADMIN DASHBOARD -->
-<section id="dashboardView" hidden>
-
+    <!-- SIDEBAR -->
     <aside class="sidebar">
-
-        <div class="brand">
-            PLAY<span>X</span>
-            <small>ADMIN PANEL</small>
-        </div>
+        <div class="brand">PLAY<span>X</span></div>
+        <p class="sidebar-label">ADMIN MENU</p>
 
         <nav>
-            <button class="nav-btn active" data-page="overview">
-                Overview
-            </button>
-
-            <button class="nav-btn" data-page="tournaments">
-                Tournaments
-            </button>
-
-            <button class="nav-btn" data-page="players">
-                Players
-            </button>
-
-            <button class="nav-btn" data-page="participants">
-                Participants
-            </button>
-
-            <button class="nav-btn" data-page="matches">
-                Matches
-            </button>
-
-            <button class="nav-btn" data-page="results">
-                Results
-            </button>
-
-            <button class="nav-btn" data-page="wallet">
-                Wallet
-            </button>
-
-            <button class="nav-btn" data-page="settings">
-                Settings
-            </button>
+            <button class="nav-btn active" data-page="overview">Overview</button>
+            <button class="nav-btn" data-page="tournaments">Tournaments</button>
+            <button class="nav-btn" data-page="players">Players</button>
+            <button class="nav-btn" data-page="participants">Participants</button>
+            <button class="nav-btn" data-page="matches">Matches</button>
+            <button class="nav-btn" data-page="results">Results</button>
+            <button class="nav-btn" data-page="wallet">Wallet</button>
+            <button class="nav-btn" data-page="settings">Settings</button>
         </nav>
 
-        <button id="logoutBtn" class="logout-btn">
-            Logout
-        </button>
-
+        <button id="logoutBtn" class="logout-btn">Sign Out</button>
     </aside>
 
-
+    <!-- MAIN CONTENT -->
     <main class="main-content">
 
         <header class="topbar">
             <div>
-                <h2 id="pageTitle">Overview</h2>
-                <p>PlayX Management System</p>
+                <h1 id="pageTitle">Overview</h1>
+                <p>PlayX Platform Management</p>
             </div>
-
-            <div class="admin-badge">ADMIN</div>
+            <div class="admin-label">ADMIN</div>
         </header>
-
 
         <!-- OVERVIEW -->
         <section id="overviewPage" class="page active">
-
-            <h1>Dashboard Overview</h1>
-            <p>Welcome to your PlayX control center.</p>
+            <h2>Dashboard Overview</h2>
 
             <div class="stats-grid">
-
                 <div class="stat-card">
-                    <span>Total Players</span>
+                    <p>Total Players</p>
                     <h2 id="totalPlayers">0</h2>
                 </div>
 
                 <div class="stat-card">
-                    <span>Total Tournaments</span>
+                    <p>Total Tournaments</p>
                     <h2 id="totalTournaments">0</h2>
                 </div>
 
                 <div class="stat-card">
-                    <span>Active Matches</span>
+                    <p>Active Matches</p>
                     <h2 id="activeMatches">0</h2>
                 </div>
 
                 <div class="stat-card">
-                    <span>Completed Matches</span>
+                    <p>Completed Matches</p>
                     <h2 id="completedMatches">0</h2>
                 </div>
-
             </div>
 
             <div class="panel">
-                <h2>Recent Activity</h2>
-                <div id="recentActivity">
-                    No recent activity.
-                </div>
+                <h2>Platform Information</h2>
+                <p>Manage tournaments, players, matches and results from the Admin Dashboard.</p>
             </div>
-
         </section>
-
 
         <!-- TOURNAMENTS -->
         <section id="tournamentsPage" class="page">
-
-            <h1>Tournament Management</h1>
+            <h2>Create Tournament</h2>
 
             <div class="panel">
-                <h2>Create New Tournament</h2>
+                <div class="form-grid">
 
-                <label>Tournament Name</label>
-                <input id="tournamentName"
-                    placeholder="Tournament name">
+                    <div>
+                        <label>Tournament Name</label>
+                        <input id="tournamentName" placeholder="Tournament name">
+                    </div>
 
-                <label>Game Name</label>
-                <input id="gameName"
-                    placeholder="Game name">
+                    <div>
+                        <label>Game</label>
+                        <select id="gameName">
+                            <option value="Free Fire">Free Fire</option>
+                        </select>
+                    </div>
 
-                <label>Game Mode</label>
-                <select id="gameMode">
-                    <option value="Solo">Solo</option>
-                    <option value="Duo">Duo</option>
-                    <option value="Squad">Squad</option>
-                </select>
+                    <div>
+                        <label>Mode</label>
+                        <select id="gameMode">
+                            <option value="Solo">Solo</option>
+                            <option value="Duo">Duo</option>
+                            <option value="Squad">Squad</option>
+                        </select>
+                    </div>
 
-                <label>Map</label>
-                <select id="gameMap">
-                    <option value="Bermuda">Bermuda</option>
-                    <option value="Purgatory">Purgatory</option>
-                    <option value="Kalahari">Kalahari</option>
-                    <option value="Alpine">Alpine</option>
-                    <option value="Nexterra">Nexterra</option>
-                </select>
+                    <div>
+                        <label>Map</label>
+                        <select id="gameMap">
+                            <option value="Bermuda">Bermuda</option>
+                            <option value="Purgatory">Purgatory</option>
+                            <option value="Kalahari">Kalahari</option>
+                            <option value="Alpine">Alpine</option>
+                            <option value="Nexterra">Nexterra</option>
+                        </select>
+                    </div>
 
-                <label>Tournament Date</label>
-                <input id="tournamentDate" type="date">
+                    <div>
+                        <label>Date</label>
+                        <input id="tournamentDate" type="date">
+                    </div>
 
-                <label>Starting Time</label>
-                <input id="tournamentTime" type="time">
+                    <div>
+                        <label>Time</label>
+                        <input id="tournamentTime" type="time">
+                    </div>
 
-                <label>Entry Fee</label>
-                <input id="entryFee" type="number"
-                    min="0" placeholder="Entry fee">
+                    <div>
+                        <label>Entry Fee (₹)</label>
+                        <input id="entryFee" type="number" min="0" placeholder="0">
+                    </div>
 
-                <label>Prize Pool</label>
-                <input id="prizePool" type="number"
-                    min="0" placeholder="Prize pool">
+                    <div>
+                        <label>Prize Pool (₹)</label>
+                        <input id="prizePool" type="number" min="0" placeholder="0">
+                    </div>
 
-                <label>Maximum Players</label>
-                <input id="maxPlayers" type="number"
-                    min="1" placeholder="Maximum players">
+                    <div>
+                        <label>Maximum Players</label>
+                        <input id="maxPlayers" type="number" min="1" placeholder="48">
+                    </div>
+
+                </div>
 
                 <label>Description</label>
-                <textarea id="tournamentDescription"
-                    placeholder="Tournament details"></textarea>
+                <textarea id="tournamentDescription" placeholder="Tournament details"></textarea>
 
-                <button id="createTournamentBtn">
-                    Create Tournament
-                </button>
-
+                <button id="createTournamentBtn">Create Tournament</button>
                 <p id="tournamentMessage"></p>
             </div>
 
             <div class="panel">
-                <h2>All Tournaments</h2>
-                <div id="tournamentList">
-                    Loading tournaments...
-                </div>
+                <h2>Manage Tournaments</h2>
+
+                <input id="tournamentSearch" type="search" placeholder="Search tournaments...">
+
+                <select id="tournamentFilter">
+                    <option value="all">All Tournaments</option>
+                    <option value="open">Open</option>
+                    <option value="full">Full</option>
+                    <option value="closed">Closed</option>
+                </select>
+
+                <div id="tournamentList">Loading tournaments...</div>
             </div>
-
         </section>
-
 
         <!-- PLAYERS -->
         <section id="playersPage" class="page">
-
-            <h1>Player Management</h1>
+            <h2>Player Management</h2>
 
             <div class="panel">
-                <h2>Registered Players</h2>
-                <input id="playerSearch"
-                    placeholder="Search players">
-
-                <div id="playerList">
-                    Loading players...
-                </div>
+                <input id="playerSearch" type="search" placeholder="Search by player name or email...">
+                <div id="playerList">Loading players...</div>
             </div>
-
         </section>
-
 
         <!-- PARTICIPANTS -->
         <section id="participantsPage" class="page">
-
-            <h1>Tournament Participants</h1>
+            <h2>Tournament Participants</h2>
 
             <div class="panel">
-                <p>Select a tournament to view registered participants.</p>
+                <label>Select Tournament</label>
                 <select id="participantTournament">
-                    <option value="">Select tournament</option>
+                    <option value="">Select a tournament</option>
                 </select>
 
-                <div id="participantList">
-                    No tournament selected.
-                </div>
+                <div id="participantList">Select a tournament to view participants.</div>
             </div>
-
         </section>
-
 
         <!-- MATCHES -->
         <section id="matchesPage" class="page">
-
-            <h1>Match Management</h1>
+            <h2>Match Management</h2>
 
             <div class="panel">
-                <h2>Room Management</h2>
-
                 <label>Select Tournament</label>
                 <select id="matchTournament">
-                    <option value="">Select tournament</option>
+                    <option value="">Select a tournament</option>
                 </select>
 
                 <label>Room ID</label>
                 <input id="roomId" placeholder="Enter room ID">
 
                 <label>Room Password</label>
-                <input id="roomPassword"
-                    placeholder="Enter room password">
+                <input id="roomPassword" placeholder="Enter room password">
 
                 <button id="saveMatchBtn">Save Match Details</button>
 
-                <div id="matchList"></div>
+                <div id="matchList">Match details will appear here.</div>
             </div>
-
         </section>
-
 
         <!-- RESULTS -->
         <section id="resultsPage" class="page">
-
-            <h1>Results Management</h1>
+            <h2>Results Management</h2>
 
             <div class="panel">
-                <h2>Publish Tournament Results</h2>
-
+                <label>Select Tournament</label>
                 <select id="resultTournament">
-                    <option value="">Select tournament</option>
+                    <option value="">Select a tournament</option>
                 </select>
 
-                <input id="winnerName"
-                    placeholder="Winner player name">
+                <label>Winner Name</label>
+                <input id="winnerName" placeholder="Winner name">
 
-                <input id="winnerUid"
-                    placeholder="Winner player UID">
+                <label>Winner UID</label>
+                <input id="winnerUid" placeholder="Winner Free Fire UID">
 
-                <input id="winnerPrize" type="number"
-                    placeholder="Prize points">
+                <label>Prize Amount (₹)</label>
+                <input id="winnerPrize" type="number" min="0" placeholder="0">
 
-                <button id="publishResultBtn">
-                    Publish Result
-                </button>
+                <button id="publishResultBtn">Publish Result</button>
 
-                <div id="resultList"></div>
+                <div id="resultList">Published results will appear here.</div>
             </div>
-
         </section>
-
 
         <!-- WALLET -->
         <section id="walletPage" class="page">
-
-            <h1>Wallet Management</h1>
+            <h2>Wallet Management</h2>
 
             <div class="panel">
-                <h2>Player Wallets</h2>
-                <div id="walletList">
-                    Wallet records will appear here.
-                </div>
+                <p>Wallet transaction records will appear here when secure wallet services are implemented.</p>
+                <div id="walletList">No wallet records loaded.</div>
             </div>
-
         </section>
-
 
         <!-- SETTINGS -->
         <section id="settingsPage" class="page">
-
-            <h1>Platform Settings</h1>
+            <h2>Platform Settings</h2>
 
             <div class="panel">
-                <h2>PlayX Configuration</h2>
-                <p>Manage your platform settings here.</p>
                 <div id="settingsContent">
-                    Settings are under development.
+                    <h3>PlayX Platform</h3>
+                    <p>Platform configuration and administrative controls.</p>
+                    <p>Security-sensitive settings will be managed through the backend.</p>
                 </div>
             </div>
-
         </section>
 
     </main>
-
-</section>
+</div>
 
 <script type="module" src="script.js"></script>
-
-  
 </body>
-                    </html>
-                    
+    </html>
+    
