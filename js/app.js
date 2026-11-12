@@ -1,296 +1,212 @@
 
-/* =========================================
-   PLAYX ADMIN — MAIN APPLICATION
-   ========================================= */
-
 import {
-    loginAdmin,
-    logoutAdmin,
-    watchAdminSession
+  loginAdmin,
+  logoutAdmin,
+  watchAdminSession
 } from "./auth.js";
 
 import {
-    initRouter,
-    navigateTo
+  initRouter,
+  navigateTo
 } from "./router.js";
 
 import {
-    initUI,
-    showToast
+  initUI,
+  showToast
 } from "./ui.js";
 
 import {
-    getRoleLabel
+  getRoleLabel
 } from "./permissions.js";
 
-/* APPLICATION STATE */
-
-let currentAdmin = null;
 let routerInitialized = false;
+let sessionUnsubscribe = null;
 let loginInProgress = false;
 
-/* ELEMENT HELPER */
-
-const $ = id => document.getElementById(id);
-
-/* SHOW LOGIN */
-
-function showLogin() {
-    $("loginView")?.classList.remove("hidden");
-    $("dashboardView")?.classList.add("hidden");
+function showLoginView() {
+  document.getElementById("loginView")?.classList.remove("hidden");
+  document.getElementById("dashboardView")?.classList.add("hidden");
 }
 
-/* SHOW DASHBOARD */
-
-function showDashboard() {
-    $("loginView")?.classList.add("hidden");
-    $("dashboardView")?.classList.remove("hidden");
+function showDashboardView() {
+  document.getElementById("loginView")?.classList.add("hidden");
+  document.getElementById("dashboardView")?.classList.remove("hidden");
 }
-
-/* HIDE LOADING SCREEN */
-
-function hideLoadingScreen() {
-    $("loadingScreen")?.classList.add("hidden");
-}
-
-/* UPDATE ADMIN PROFILE */
-
 
 function updateAdminProfile(admin) {
-    const name =
-        admin.Name ||
-        admin.name ||
-        admin.displayName ||
-        admin.email ||
-        "Admin";
+  if (!admin) return;
 
-    const role = getRoleLabel(
-        admin.Role || admin.role
+  const name =
+    admin.name ||
+    admin.Name ||
+    admin.displayName ||
+    admin.email ||
+    "Administrator";
+
+  const role = admin.Role || admin.role || "admin";
+  const roleLabel = getRoleLabel(role);
+  const initial = String(name).trim().charAt(0).toUpperCase() || "A";
+
+  const elements = {
+    adminName: name,
+    adminRole: roleLabel,
+    adminAvatar: initial,
+    headerAdminName: name,
+    headerAdminRole: roleLabel,
+    headerAvatar: initial,
+    dropdownAdminName: name,
+    dropdownAdminRole: roleLabel
+  };
+
+  Object.entries(elements).forEach(([id, value]) => {
+    const element = document.getElementById(id);
+    if (element) element.textContent = value;
+  });
+}
+
+function setLoginError(message = "") {
+  const errorElement = document.getElementById("loginError");
+  if (!errorElement) return;
+
+  errorElement.textContent = message;
+  errorElement.classList.toggle("hidden", !message);
+}
+
+function setLoginButtonLoading(loading) {
+  const button = document.getElementById("loginButton");
+  if (!button) return;
+
+  button.disabled = loading;
+  button.innerHTML = loading
+    ? '<span class="loading-spinner"></span> Signing in...'
+    : 'Sign In <span>→</span>';
+}
+
+function initializeRouterOnce() {
+  if (routerInitialized) return;
+
+  routerInitialized = true;
+  initRouter();
+}
+
+function enterDashboard(admin) {
+  if (!admin) return;
+
+  updateAdminProfile(admin);
+  showDashboardView();
+  initializeRouterOnce();
+}
+
+async function handleAdminLogin(event) {
+  event.preventDefault();
+
+  if (loginInProgress) return;
+
+  const email = document.getElementById("loginEmail")?.value.trim();
+  const password = document.getElementById("loginPassword")?.value;
+
+  if (!email || !password) {
+    setLoginError("Please enter your email and password.");
+    return;
+  }
+
+  loginInProgress = true;
+  setLoginError("");
+  setLoginButtonLoading(true);
+
+  try {
+    const admin = await loginAdmin(email, password);
+
+    if (!admin) {
+      throw new Error("Administrator verification failed.");
+    }
+
+    enterDashboard(admin);
+    showToast("Welcome to PlayX Admin.", "success");
+  } catch (error) {
+    console.error("Admin login error:", error);
+
+    setLoginError(
+      error.message || "Unable to sign in. Please check your details."
     );
-
-    const nameElement = $("adminName");
-    const roleElement = $("adminRole");
-    const avatarElement = $("adminAvatar");
-    const headerNameElement = $("headerAdminName");
-    const headerRoleElement = $("headerAdminRole");
-    const headerAvatarElement = $("headerAvatar");
-
-    if (nameElement) {
-        nameElement.textContent = name;
-    }
-
-    if (roleElement) {
-        roleElement.textContent = role;
-    }
-
-    if (avatarElement) {
-        avatarElement.textContent = name.charAt(0).toUpperCase();
-    }
-
-    if (headerNameElement) {
-        headerNameElement.textContent = name;
-    }
-
-    if (headerRoleElement) {
-        headerRoleElement.textContent = role;
-    }
-
-    if (headerAvatarElement) {
-        headerAvatarElement.textContent = name.charAt(0).toUpperCase();
-    }
+  } finally {
+    loginInProgress = false;
+    setLoginButtonLoading(false);
+  }
 }
 
+async function handleLogout() {
+  try {
+    await logoutAdmin();
 
-/* HANDLE AUTHENTICATED ADMIN */
+    showLoginView();
 
-async function handleAdminLogin(admin) {
-    currentAdmin = admin;
+    const passwordInput = document.getElementById("loginPassword");
+    if (passwordInput) passwordInput.value = "";
 
-    updateAdminProfile(admin);
-    showDashboard();
+    document.getElementById("profileDropdown")?.classList.add("hidden");
 
-    if (!routerInitialized) {
-        routerInitialized = true;
-        await initRouter();
-    }
-
-    hideLoadingScreen();
+    setLoginError("");
+    showToast("You have signed out.", "success");
+  } catch (error) {
+    console.error("Logout error:", error);
+    showToast("Unable to sign out. Please try again.", "error");
+  }
 }
-
-/* HANDLE LOGOUT / NO SESSION */
-
-function handleNoSession() {
-    currentAdmin = null;
-
-    showLogin();
-    hideLoadingScreen();
-}
-
-/* LOGIN FORM */
-
-function initLoginForm() {
-    const form = $("loginForm");
-    const emailInput = $("adminEmail");
-    const passwordInput = $("adminPassword");
-    const loginButton = $("loginBtn");
-
-    if (!form) {
-        console.error("Login form not found.");
-        return;
-    }
-
-    form.addEventListener("submit", async event => {
-        event.preventDefault();
-
-        if (loginInProgress) return;
-
-        const email = emailInput?.value.trim();
-        const password = passwordInput?.value;
-
-        if (!email || !password) {
-            showToast(
-                "Enter your email and password.",
-                "warning"
-            );
-            return;
-        }
-
-        loginInProgress = true;
-
-        if (loginButton) {
-            loginButton.disabled = true;
-            loginButton.textContent = "Signing in...";
-        }
-
-        try {
-            const admin = await loginAdmin(email, password);
-
-            await handleAdminLogin(admin);
-
-            showToast("Welcome to PlayX Admin.", "success");
-
-            if (passwordInput) {
-                passwordInput.value = "";
-            }
-
-        } catch (error) {
-            showToast(
-                error.message || "Login failed.",
-                "error"
-            );
-
-        } finally {
-            loginInProgress = false;
-
-            if (loginButton) {
-                loginButton.disabled = false;
-                loginButton.textContent = "Sign In";
-            }
-        }
-    });
-}
-
-/* LOGOUT BUTTONS */
 
 function initLogoutButtons() {
-    document.addEventListener("click", async event => {
-        const logoutButton = event.target.closest(
-            '[data-action="logout"], #logoutBtn, #sidebarLogoutBtn'
-        );
+  document.addEventListener("click", event => {
+    const button = event.target.closest(
+      "#logoutBtn, #sidebarLogoutBtn, [data-action='logout']"
+    );
 
-        if (!logoutButton) return;
+    if (!button) return;
 
-        event.preventDefault();
-
-        if (logoutButton.disabled) return;
-
-        logoutButton.disabled = true;
-
-        try {
-            await logoutAdmin();
-
-            currentAdmin = null;
-
-            showLogin();
-
-            showToast("You have signed out.", "success");
-
-        } catch (error) {
-            showToast(
-                error.message || "Logout failed.",
-                "error"
-            );
-
-        } finally {
-            logoutButton.disabled = false;
-        }
-    });
+    event.preventDefault();
+    handleLogout();
+  });
 }
-
-/* CUSTOM PAGE NAVIGATION EVENTS */
 
 function initNavigationEvents() {
-    document.addEventListener(
-        "playx:navigate",
-        event => {
-            const page = event.detail?.page;
+  document.addEventListener("playx:navigate", event => {
+    const page = event.detail?.page;
+    if (!page) return;
 
-            if (page) {
-                navigateTo(page);
-            }
-        }
-    );
+    navigateTo(page);
+  });
 }
 
-/* FIREBASE AUTH SESSION */
+function initLoginForm() {
+  const form = document.getElementById("loginForm");
+
+  form?.addEventListener("submit", handleAdminLogin);
+}
 
 function initAuthSession() {
-    watchAdminSession(async admin => {
-        if (!admin) {
-            handleNoSession();
-            return;
-        }
+  if (sessionUnsubscribe) return;
 
-        try {
-            await handleAdminLogin(admin);
-
-        } catch (error) {
-            console.error(
-                "Dashboard initialization error:",
-                error
-            );
-
-            showToast(
-                "Could not initialize the dashboard.",
-                "error"
-            );
-
-            hideLoadingScreen();
-        }
-    });
+  sessionUnsubscribe = watchAdminSession(admin => {
+    if (admin) {
+      enterDashboard(admin);
+    } else if (!loginInProgress) {
+      showLoginView();
+    }
+  });
 }
 
-/* APPLICATION STARTUP */
+function initApp() {
+  initUI();
+  initLoginForm();
+  initLogoutButtons();
+  initNavigationEvents();
+  initAuthSession();
 
-function startApplication() {
-    initUI();
-    initLoginForm();
-    initLogoutButtons();
-    initNavigationEvents();
-
-    showLogin();
-
-    initAuthSession();
+  showLoginView();
 }
-
-/* START AFTER HTML LOADS */
 
 if (document.readyState === "loading") {
-    document.addEventListener(
-        "DOMContentLoaded",
-        startApplication,
-        { once: true }
-    );
+  document.addEventListener("DOMContentLoaded", initApp, { once: true });
 } else {
-    startApplication();
+  initApp();
 }
+   
