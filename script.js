@@ -28,6 +28,7 @@ const dashboardView = $("dashboardView");
 
 // ADMIN LOGIN
 $("loginBtn").addEventListener("click", async () => {
+  alert("LOGIN BUTTON HANDLER WORKING");
     const email = $("adminEmail").value.trim();
     const password = $("adminPassword").value;
 
@@ -347,4 +348,4 @@ document.querySelectorAll(".nav-btn").forEach(button => {
         $("pageTitle").textContent = pageNames[page] || "PlayX Admin";
     };
 });
-        
+            
