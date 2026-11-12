@@ -1,0 +1,250 @@
+<section class="tournaments-page">
+
+  <div class="tournaments-heading">
+    <div>
+      <h2>Tournament Management</h2>
+      <p>Create, organize and manage Free Fire tournaments.</p>
+    </div>
+
+    <button type="button" class="tournament-primary-btn" id="createTournamentBtn">
+      + Create Tournament
+    </button>
+  </div>
+
+  <div class="tournament-stats">
+
+    <div class="tournament-stat-card">
+      <span>Total Tournaments</span>
+      <strong id="tournamentTotal">0</strong>
+    </div>
+
+    <div class="tournament-stat-card">
+      <span>Open Registration</span>
+      <strong id="tournamentOpen">0</strong>
+    </div>
+
+    <div class="tournament-stat-card">
+      <span>Full Tournaments</span>
+      <strong id="tournamentFull">0</strong>
+    </div>
+
+    <div class="tournament-stat-card">
+      <span>Closed Registration</span>
+      <strong id="tournamentClosed">0</strong>
+    </div>
+
+  </div>
+
+  <div class="tournament-toolbar">
+
+    <div class="tournament-search">
+      <input
+        type="search"
+        id="tournamentSearch"
+        placeholder="Search by name, map or mode..."
+        autocomplete="off"
+      >
+    </div>
+
+    <select id="tournamentStatusFilter">
+      <option value="all">All Status</option>
+      <option value="open">Open</option>
+      <option value="closed">Closed</option>
+      <option value="full">Full</option>
+      <option value="completed">Completed</option>
+      <option value="cancelled">Cancelled</option>
+    </select>
+
+    <button type="button" class="tournament-secondary-btn" id="refreshTournamentsBtn">
+      ↻ Refresh
+    </button>
+
+  </div>
+
+  <div class="tournament-table-card">
+
+    <div class="tournament-table-heading">
+      <div>
+        <h3>All Tournaments</h3>
+        <p>Manage your tournament listings.</p>
+      </div>
+    </div>
+
+    <div class="tournament-table-wrapper">
+
+      <table class="tournament-table">
+
+        <thead>
+          <tr>
+            <th>Tournament</th>
+            <th>Mode / Map</th>
+            <th>Date & Time</th>
+            <th>Entry Fee</th>
+            <th>Prize Pool</th>
+            <th>Players</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+
+        <tbody id="tournamentTableBody">
+          <tr>
+            <td colspan="8" class="tournament-empty">
+              Loading tournaments...
+            </td>
+          </tr>
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+  <!-- Create / Edit Tournament Modal -->
+
+  <div class="tournament-modal" id="tournamentModal" hidden>
+
+    <div class="tournament-modal-backdrop" data-close-modal></div>
+
+    <div class="tournament-modal-content">
+
+      <div class="tournament-modal-header">
+
+        <div>
+          <h3 id="tournamentModalTitle">Create Tournament</h3>
+          <p>Enter the tournament information below.</p>
+        </div>
+
+        <button type="button" id="closeTournamentModal" class="tournament-modal-close">
+          ×
+        </button>
+
+      </div>
+
+      <form id="tournamentForm">
+
+        <div class="tournament-form-grid">
+
+          <div class="tournament-form-group full-width">
+            <label for="tournamentName">Tournament Name</label>
+            <input
+              type="text"
+              id="tournamentName"
+              maxlength="60"
+              placeholder="Example: Lone Wolf"
+              required
+            >
+          </div>
+
+          <div class="tournament-form-group">
+            <label for="tournamentGame">Game</label>
+            <input
+              type="text"
+              id="tournamentGame"
+              value="Free Fire"
+              readonly
+            >
+          </div>
+
+          <div class="tournament-form-group">
+            <label for="tournamentMode">Mode</label>
+            <select id="tournamentMode" required>
+              <option value="Solo">Solo</option>
+              <option value="Duo">Duo</option>
+              <option value="Squad">Squad</option>
+            </select>
+          </div>
+
+          <div class="tournament-form-group">
+            <label for="tournamentMap">Map</label>
+            <select id="tournamentMap" required>
+              <option value="Bermuda">Bermuda</option>
+              <option value="Purgatory">Purgatory</option>
+              <option value="Kalahari">Kalahari</option>
+              <option value="Alpine">Alpine</option>
+              <option value="NexTerra">NexTerra</option>
+              <option value="Solara">Solara</option>
+              <option value="Random">Random</option>
+            </select>
+          </div>
+
+          <div class="tournament-form-group">
+            <label for="tournamentDate">Date</label>
+            <input type="date" id="tournamentDate" required>
+          </div>
+
+          <div class="tournament-form-group">
+            <label for="tournamentTime">Time</label>
+            <input type="time" id="tournamentTime" required>
+          </div>
+
+          <div class="tournament-form-group">
+            <label for="tournamentEntryFee">Entry Fee (₹)</label>
+            <input
+              type="number"
+              id="tournamentEntryFee"
+              min="0"
+              step="1"
+              value="0"
+              required
+            >
+          </div>
+
+          <div class="tournament-form-group">
+            <label for="tournamentPrizePool">Prize Pool (₹)</label>
+            <input
+              type="number"
+              id="tournamentPrizePool"
+              min="0"
+              step="1"
+              value="0"
+              required
+            >
+          </div>
+
+          <div class="tournament-form-group full-width">
+            <label for="tournamentMaxPlayers">Maximum Players</label>
+            <input
+              type="number"
+              id="tournamentMaxPlayers"
+              min="1"
+              step="1"
+              placeholder="Example: 48"
+              required
+            >
+          </div>
+
+          <div class="tournament-form-group full-width">
+            <label for="tournamentDescription">Description</label>
+            <textarea
+              id="tournamentDescription"
+              rows="3"
+              maxlength="1000"
+              placeholder="Tournament rules and information..."
+            ></textarea>
+          </div>
+
+        </div>
+
+        <div class="tournament-form-error" id="tournamentFormError" hidden></div>
+
+        <div class="tournament-modal-actions">
+
+          <button type="button" class="tournament-secondary-btn" id="cancelTournamentBtn">
+            Cancel
+          </button>
+
+          <button type="submit" class="tournament-primary-btn" id="saveTournamentBtn">
+            Save Tournament
+          </button>
+
+        </div>
+
+      </form>
+
+    </div>
+
+  </div>
+
+                </section>
