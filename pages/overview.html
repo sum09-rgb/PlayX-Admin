@@ -1,376 +1,162 @@
+<section class="overview-page">
 
-<!-- PLAYX ADMIN — OVERVIEW PAGE -->
-
-<section class="page-section overview-page">
-
-    <!-- PAGE HEADER -->
-    <div class="page-header">
+    <div class="overview-welcome">
         <div>
-            <h1 class="page-title">Dashboard Overview</h1>
-            <p class="page-subtitle">
-                Monitor your PlayX platform and tournament activity.
-            </p>
+            <span class="overview-eyebrow">PLAYX CONTROL CENTER</span>
+            <h2>Dashboard Overview</h2>
+            <p>Monitor your Free Fire tournament platform.</p>
         </div>
 
-        <div class="page-header-actions">
-            <button class="btn btn-secondary" id="overviewRefreshBtn">
-                ↻ Refresh
-            </button>
-
-            <button class="btn btn-primary" id="createTournamentQuickBtn">
-                + Create Tournament
-            </button>
-        </div>
+        <button
+            class="overview-refresh-btn"
+            id="overviewRefreshBtn"
+            type="button"
+        >
+            <span>↻</span> Refresh
+        </button>
     </div>
 
-    <!-- STATISTICS -->
-    <div class="stats-grid overview-stats">
+    <div class="overview-stats-grid">
 
-        <article class="stat-card">
-            <div class="stat-card-top">
-                <span class="stat-label">Total Players</span>
-                <span class="stat-icon">♙</span>
+        <article class="overview-stat-card">
+            <div class="overview-stat-top">
+                <span class="overview-stat-label">Total Players</span>
+                <span class="overview-stat-icon blue">♟</span>
             </div>
-            <h2 class="stat-value" id="overviewTotalPlayers">—</h2>
-            <p class="stat-change">Registered platform players</p>
+            <strong id="overviewTotalPlayers">—</strong>
+            <span class="overview-stat-note">Registered user accounts</span>
         </article>
 
-        <article class="stat-card">
-            <div class="stat-card-top">
-                <span class="stat-label">Total Tournaments</span>
-                <span class="stat-icon">🏆</span>
+        <article class="overview-stat-card">
+            <div class="overview-stat-top">
+                <span class="overview-stat-label">Total Tournaments</span>
+                <span class="overview-stat-icon purple">🏆</span>
             </div>
-            <h2 class="stat-value" id="overviewTotalTournaments">—</h2>
-            <p class="stat-change">All tournament records</p>
+            <strong id="overviewTotalTournaments">—</strong>
+            <span class="overview-stat-note">Created tournaments</span>
         </article>
 
-        <article class="stat-card">
-            <div class="stat-card-top">
-                <span class="stat-label">Total Registrations</span>
-                <span class="stat-icon">👥</span>
+        <article class="overview-stat-card">
+            <div class="overview-stat-top">
+                <span class="overview-stat-label">Open Registrations</span>
+                <span class="overview-stat-icon green">●</span>
             </div>
-            <h2 class="stat-value" id="overviewTotalRegistrations">—</h2>
-            <p class="stat-change">Tournament participants</p>
+            <strong id="overviewOpenTournaments">—</strong>
+            <span class="overview-stat-note">Accepting registrations</span>
         </article>
 
-        <article class="stat-card">
-            <div class="stat-card-top">
-                <span class="stat-label">Platform Revenue</span>
-                <span class="stat-icon">₹</span>
+        <article class="overview-stat-card">
+            <div class="overview-stat-top">
+                <span class="overview-stat-label">Live Tournaments</span>
+                <span class="overview-stat-icon orange">⚡</span>
             </div>
-            <h2 class="stat-value" id="overviewTotalRevenue">₹0</h2>
-            <p class="stat-change">Verified financial records only</p>
+            <strong id="overviewLiveTournaments">—</strong>
+            <span class="overview-stat-note">Currently running</span>
         </article>
 
     </div>
 
-    <!-- MAIN DASHBOARD GRID -->
     <div class="overview-main-grid">
 
-        <!-- TOURNAMENT SUMMARY -->
-        <section class="card overview-panel">
+        <section class="overview-panel overview-recent-panel">
 
-            <div class="card-header">
+            <div class="overview-panel-header">
                 <div>
-                    <h3 class="card-title">Tournament Summary</h3>
-                    <p class="card-description">
-                        Current tournament status
-                    </p>
+                    <h3>Recent Tournaments</h3>
+                    <p>Your latest tournament records</p>
                 </div>
 
                 <button
-                    class="btn btn-outline btn-sm"
-                    id="overviewViewTournamentsBtn">
-                    View All
+                    class="overview-text-button"
+                    type="button"
+                    data-page="tournaments"
+                >
+                    View All →
                 </button>
             </div>
 
-            <div class="card-body">
-
-                <div class="overview-status-grid">
-
-                    <div class="overview-status-item">
-                        <span class="status-dot status-dot-success"></span>
-                        <div>
-                            <strong id="overviewActiveTournaments">—</strong>
-                            <span>Active</span>
-                        </div>
-                    </div>
-
-                    <div class="overview-status-item">
-                        <span class="status-dot status-dot-warning"></span>
-                        <div>
-                            <strong id="overviewUpcomingTournaments">—</strong>
-                            <span>Upcoming</span>
-                        </div>
-                    </div>
-
-                    <div class="overview-status-item">
-                        <span class="status-dot status-dot-info"></span>
-                        <div>
-                            <strong id="overviewCompletedTournaments">—</strong>
-                            <span>Completed</span>
-                        </div>
-                    </div>
-
-                    <div class="overview-status-item">
-                        <span class="status-dot status-dot-danger"></span>
-                        <div>
-                            <strong id="overviewCancelledTournaments">—</strong>
-                            <span>Cancelled</span>
-                        </div>
-                    </div>
-
+            <div id="overviewRecentTournaments">
+                <div class="overview-loading">
+                    Loading tournaments...
                 </div>
-
-                <div class="overview-progress-section">
-                    <div class="overview-progress-heading">
-                        <span>Registration Capacity</span>
-                        <strong id="overviewRegistrationPercentage">—</strong>
-                    </div>
-
-                    <div class="overview-progress-track">
-                        <div
-                            class="overview-progress-fill"
-                            id="overviewRegistrationProgress">
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </section>
-
-        <!-- PLATFORM HEALTH -->
-        <section class="card overview-panel">
-
-            <div class="card-header">
-                <div>
-                    <h3 class="card-title">Platform Status</h3>
-                    <p class="card-description">
-                        Important system information
-                    </p>
-                </div>
-            </div>
-
-            <div class="card-body">
-
-                <div class="overview-health-item">
-                    <span>Firebase Connection</span>
-                    <span
-                        class="badge badge-secondary"
-                        id="overviewFirebaseStatus">
-                        Checking
-                    </span>
-                </div>
-
-                <div class="overview-health-item">
-                    <span>Admin Account</span>
-                    <span
-                        class="badge badge-success"
-                        id="overviewAdminStatus">
-                        Active
-                    </span>
-                </div>
-
-                <div class="overview-health-item">
-                    <span>Wallet Security</span>
-                    <span
-                        class="badge badge-warning"
-                        id="overviewWalletStatus">
-                        Verification Required
-                    </span>
-                </div>
-
-                <div class="overview-health-item">
-                    <span>Last Updated</span>
-                    <strong id="overviewLastUpdated">—</strong>
-                </div>
-
-            </div>
-        </section>
-
-    </div>
-
-    <!-- RECENT TOURNAMENTS -->
-    <section class="card overview-table-card">
-
-        <div class="card-header">
-            <div>
-                <h3 class="card-title">Recent Tournaments</h3>
-                <p class="card-description">
-                    Latest tournament activity
-                </p>
-            </div>
-
-            <button
-                class="btn btn-outline btn-sm"
-                id="overviewAllTournamentsBtn">
-                View All
-            </button>
-        </div>
-
-        <div class="table-container">
-            <table class="data-table">
-
-                <thead>
-                    <tr>
-                        <th>Tournament</th>
-                        <th>Entry Fee</th>
-                        <th>Players</th>
-                        <th>Prize Pool</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-
-                <tbody id="overviewRecentTournaments">
-                    <tr>
-                        <td colspan="5" class="table-empty">
-                            Tournament data will appear here.
-                        </td>
-                    </tr>
-                </tbody>
-
-            </table>
-        </div>
-
-    </section>
-
-    <!-- RECENT PLAYERS AND TRANSACTIONS -->
-    <div class="overview-main-grid">
-
-        <!-- RECENT PLAYERS -->
-        <section class="card overview-panel">
-
-            <div class="card-header">
-                <div>
-                    <h3 class="card-title">Recent Players</h3>
-                    <p class="card-description">
-                        Latest registered players
-                    </p>
-                </div>
-
-                <button
-                    class="btn btn-outline btn-sm"
-                    id="overviewAllPlayersBtn">
-                    View All
-                </button>
-            </div>
-
-            <div class="table-container">
-                <table class="data-table">
-
-                    <thead>
-                        <tr>
-                            <th>Player</th>
-                            <th>Registration</th>
-                        </tr>
-                    </thead>
-
-                    <tbody id="overviewRecentPlayers">
-                        <tr>
-                            <td colspan="2" class="table-empty">
-                                Player data will appear here.
-                            </td>
-                        </tr>
-                    </tbody>
-
-                </table>
             </div>
 
         </section>
 
-        <!-- RECENT TRANSACTIONS -->
-        <section class="card overview-panel">
+        <section class="overview-panel overview-actions-panel">
 
-            <div class="card-header">
+            <div class="overview-panel-header">
                 <div>
-                    <h3 class="card-title">Recent Transactions</h3>
-                    <p class="card-description">
-                        Latest verified wallet activity
-                    </p>
+                    <h3>Quick Actions</h3>
+                    <p>Manage your platform</p>
                 </div>
-
-                <button
-                    class="btn btn-outline btn-sm"
-                    id="overviewAllTransactionsBtn">
-                    View All
-                </button>
             </div>
 
-            <div class="table-container">
-                <table class="data-table">
+            <div class="overview-actions-list">
 
-                    <thead>
-                        <tr>
-                            <th>Transaction</th>
-                            <th>Amount</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
+                <button
+                    class="overview-action"
+                    type="button"
+                    data-page="tournaments"
+                >
+                    <span class="overview-action-icon blue">＋</span>
+                    <span>
+                        <strong>Create Tournament</strong>
+                        <small>Set up a new Free Fire event</small>
+                    </span>
+                    <span class="overview-action-arrow">→</span>
+                </button>
 
-                    <tbody id="overviewRecentTransactions">
-                        <tr>
-                            <td colspan="3" class="table-empty">
-                                Transaction data will appear here.
-                            </td>
-                        </tr>
-                    </tbody>
+                <button
+                    class="overview-action"
+                    type="button"
+                    data-page="players"
+                >
+                    <span class="overview-action-icon purple">♟</span>
+                    <span>
+                        <strong>Manage Players</strong>
+                        <small>View registered accounts</small>
+                    </span>
+                    <span class="overview-action-arrow">→</span>
+                </button>
 
-                </table>
+                <button
+                    class="overview-action"
+                    type="button"
+                    data-page="participants"
+                >
+                    <span class="overview-action-icon green">☷</span>
+                    <span>
+                        <strong>View Participants</strong>
+                        <small>Check tournament registrations</small>
+                    </span>
+                    <span class="overview-action-arrow">→</span>
+                </button>
+
+                <button
+                    class="overview-action"
+                    type="button"
+                    data-page="results"
+                >
+                    <span class="overview-action-icon orange">★</span>
+                    <span>
+                        <strong>Manage Results</strong>
+                        <small>Review tournament results</small>
+                    </span>
+                    <span class="overview-action-arrow">→</span>
+                </button>
+
             </div>
 
         </section>
 
     </div>
 
-    <!-- QUICK ACTIONS -->
-    <section class="card overview-quick-actions">
-
-        <div class="card-header">
-            <div>
-                <h3 class="card-title">Quick Actions</h3>
-                <p class="card-description">
-                    Frequently used administration tools
-                </p>
-            </div>
-        </div>
-
-        <div class="card-body">
-
-            <div class="overview-actions-grid">
-
-                <button
-                    class="overview-action"
-                    id="overviewCreateTournamentAction">
-                    <span class="overview-action-icon">🏆</span>
-                    <span>Create Tournament</span>
-                </button>
-
-                <button
-                    class="overview-action"
-                    id="overviewManagePlayersAction">
-                    <span class="overview-action-icon">👥</span>
-                    <span>Manage Players</span>
-                </button>
-
-                <button
-                    class="overview-action"
-                    id="overviewManageMatchesAction">
-                    <span class="overview-action-icon">🎮</span>
-                    <span>Manage Matches</span>
-                </button>
-
-                <button
-                    class="overview-action"
-                    id="overviewViewReportsAction">
-                    <span class="overview-action-icon">📊</span>
-                    <span>View Reports</span>
-                </button>
-
-            </div>
-
-        </div>
-
-    </section>
+    <div class="overview-footer-note">
+        <span class="overview-status-dot"></span>
+        <span id="overviewLastUpdated">
+            Waiting for dashboard data...
+        </span>
+    </div>
 
 </section>
