@@ -31,7 +31,7 @@ const loginView = $("loginView");
 const dashboardView = $("dashboardView");
 
 // ADMIN LOGIN
-$("loginBtn").onclick = async () => {
+document.getElementById("loginBtn").addEventListener("click", async () => {
   alert("Admin JavaScript is working!");
     const email = $("adminEmail").value.trim();
     const password = $("adminPassword").value;
@@ -47,7 +47,7 @@ $("loginBtn").onclick = async () => {
         console.error(error);
         $("message").textContent = "Login failed. Check your details.";
     }
-};
+});
 
 
 
@@ -491,4 +491,4 @@ document.querySelectorAll(".nav-btn").forEach(button => {
             pageNames[page] || "PlayX Admin";
     };
 });
-                         
+                    
