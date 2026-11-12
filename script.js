@@ -27,23 +27,21 @@ const loginView = $("loginView");
 const dashboardView = $("dashboardView");
 
 // ADMIN LOGIN
-$("loginBtn").addEventListener("click", async () => {
 
+$("loginBtn").addEventListener("click", async () => {
     const email = $("adminEmail").value.trim();
     const password = $("adminPassword").value;
 
     if (!email || !password) {
-        $("message").textContent = "Enter email and password.";
+        alert("Enter email and password.");
         return;
     }
-
-    $("message").textContent = "Signing in...";
 
     try {
         await signInWithEmailAndPassword(auth, email, password);
     } catch (error) {
         console.error("Login error:", error);
-        $("message").textContent = "Login failed: " + error.message;
+        alert("Login failed. Please check your email and password.");
     }
 });
 
@@ -224,9 +222,9 @@ onAuthStateChanged(auth, async (user) => {
         const adminSnap = await getDoc(adminRef);
 
         if (!adminSnap.exists() || adminSnap.data().Active !== true) {
-            await signOut(auth);
-            $("message").textContent = "Admin not authorized.";
-            return;
+    alert("This account is not authorized as an admin.");
+    await signOut(auth);
+    return;
         }
 
         loginView.hidden = true;
@@ -348,3 +346,4 @@ document.querySelectorAll(".nav-btn").forEach(button => {
         $("pageTitle").textContent = pageNames[page] || "PlayX Admin";
     };
 });
+                                  
