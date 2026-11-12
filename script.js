@@ -32,6 +32,7 @@ const dashboardView = $("dashboardView");
 
 // ADMIN LOGIN
 document.getElementById("loginBtn").addEventListener("click", async () => {
+  alert("Firebase handler attached!");
   alert("Admin JavaScript is working!");
     const email = $("adminEmail").value.trim();
   alert("Firebase login handler reached!");
