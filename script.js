@@ -1,4 +1,4 @@
-
+alert("SCRIPT FILE STARTED");
 import { auth, db } from "./firebase/firebase.js";
 
 import {
