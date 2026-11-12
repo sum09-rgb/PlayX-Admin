@@ -19,11 +19,7 @@ import {
 
 const $ = (id) => {
     const element = document.getElementById(id);
-
-    if (!element) {
-        throw new Error("Missing HTML element: " + id);
-    }
-
+    if (!element) throw new Error("Missing HTML element: " + id);
     return element;
 };
 
@@ -31,11 +27,8 @@ const loginView = $("loginView");
 const dashboardView = $("dashboardView");
 
 // ADMIN LOGIN
-document.getElementById("loginBtn").addEventListener("click", async () => {
-  alert("Firebase handler attached!");
-  alert("Admin JavaScript is working!");
+$("loginBtn").addEventListener("click", async () => {
     const email = $("adminEmail").value.trim();
-  alert("Firebase login handler reached!");
     const password = $("adminPassword").value;
 
     if (!email || !password) {
@@ -43,25 +36,23 @@ document.getElementById("loginBtn").addEventListener("click", async () => {
         return;
     }
 
+    $("message").textContent = "Signing in...";
+
     try {
         await signInWithEmailAndPassword(auth, email, password);
     } catch (error) {
-        console.error(error);
-        $("message").textContent = "Login failed. Check your details.";
+        console.error("Login error:", error);
+        $("message").textContent = "Login failed: " + error.message;
     }
 });
 
-
-
-// LOAD TOURNAMENTS AND REGISTERED PLAYERS
-
+// LOAD TOURNAMENTS
 async function loadTournaments() {
     const list = $("tournamentList");
     list.textContent = "Loading tournaments...";
 
     try {
         const snapshot = await getDocs(collection(db, "tournaments"));
-
         list.innerHTML = "";
 
         if (snapshot.empty) {
@@ -72,15 +63,14 @@ async function loadTournaments() {
         for (const item of snapshot.docs) {
             const data = item.data();
 
-            // Load registered players for this tournament
-            const participantsSnapshot = await getDocs(
+            const participants = await getDocs(
                 collection(db, "tournaments", item.id, "participants")
             );
 
             const card = document.createElement("div");
-
             const title = document.createElement("h3");
             title.textContent = data.name || "Untitled Tournament";
+            card.appendChild(title);
 
             const details = [
                 ["Game", data.game],
@@ -91,11 +81,9 @@ async function loadTournaments() {
                 ["Entry Fee", "₹" + (data.entryFee ?? 0)],
                 ["Prize Pool", "₹" + (data.prizePool ?? 0)],
                 ["Maximum Players", data.maxPlayers],
-                ["Registered Players", participantsSnapshot.size],
+                ["Registered Players", participants.size],
                 ["Status", data.status]
             ];
-
-            card.appendChild(title);
 
             details.forEach(([label, value]) => {
                 const p = document.createElement("p");
@@ -107,15 +95,15 @@ async function loadTournaments() {
             heading.textContent = "Registered Player Names";
             card.appendChild(heading);
 
-            if (participantsSnapshot.empty) {
-                const empty = document.createElement("p");
-                empty.textContent = "No players joined yet.";
-                card.appendChild(empty);
+            if (participants.empty) {
+                const p = document.createElement("p");
+                p.textContent = "No players joined yet.";
+                card.appendChild(p);
             } else {
-                participantsSnapshot.forEach(playerDoc => {
+                participants.forEach(playerDoc => {
                     const p = document.createElement("p");
-                    p.textContent =
-                        "• " + (playerDoc.data().playerName || "Unknown Player");
+                    p.textContent = "• " +
+                        (playerDoc.data().playerName || "Unknown Player");
                     card.appendChild(p);
                 });
             }
@@ -139,151 +127,28 @@ async function loadTournaments() {
             card.appendChild(deleteButton);
             list.appendChild(card);
         }
-
     } catch (error) {
         console.error("Tournament loading error:", error);
-        list.textContent = "Could not load tournaments.";
+        list.textContent = "Could not load tournaments: " + error.message;
     }
 }
-
-
-
-
-        for (const item of snapshot.docs) {
-            const data = item.data();
-
-            const card = document.createElement("div");
-
-            // Tournament name
-            const title = document.createElement("h3");
-            title.textContent = data.name || "Untitled Tournament";
-
-            // Game details
-            const game = document.createElement("p");
-            game.textContent = "Game: " + (data.game || "Not specified");
-
-            const mode = document.createElement("p");
-            mode.textContent = "Mode: " + (data.mode || "Not specified");
-
-            const map = document.createElement("p");
-            map.textContent = "Map: " + (data.map || "Not specified");
-
-            // Schedule
-            const date = document.createElement("p");
-            date.textContent = "Date: " + (data.date || "Not scheduled");
-
-            const time = document.createElement("p");
-            time.textContent = "Time: " + (data.time || "Not scheduled");
-
-            // Fees and prizes
-            const fee = document.createElement("p");
-            fee.textContent = "Entry Fee: ₹" + (data.entryFee ?? 0);
-
-            const prize = document.createElement("p");
-            prize.textContent = "Prize Pool: ₹" + (data.prizePool ?? 0);
-
-            // Player capacity
-            const capacity = document.createElement("p");
-            capacity.textContent =
-                "Maximum Players: " + (data.maxPlayers ?? 0);
-
-            // Status
-            const status = document.createElement("p");
-            status.textContent =
-                "Status: " + (data.status || "Unknown");
-
-            // Player list placeholder
-            const playerHeading = document.createElement("h4");
-            playerHeading.textContent = "Registered Players";
-
-            const playerList = document.createElement("p");
-            playerList.textContent =
-                "Player registration system not connected yet.";
-
-            // Delete tournament
-            const deleteButton = document.createElement("button");
-            deleteButton.textContent = "Delete Tournament";
-
-            deleteButton.onclick = async () => {
-                if (!confirm("Delete this tournament?")) return;
-
-                try {
-                    await deleteDoc(
-                        doc(db, "tournaments", item.id)
-                    );
-
-                    await loadTournaments();
-                    await updateOverview();
-
-                } catch (error) {
-                    console.error(error);
-                    alert("Could not delete tournament.");
-                }
-            };
-
-            card.append(
-                title,
-                game,
-                mode,
-                map,
-                date,
-                time,
-                fee,
-                prize,
-                capacity,
-                status,
-                playerHeading,
-                playerList,
-                deleteButton
-            );
-
-            list.appendChild(card);
-        }
-
-    } catch (error) {
-        console.error("Tournament loading error:", error);
-        list.textContent = "Could not load tournaments.";
-    }
-}
-
-
 
 // UPDATE DASHBOARD STATISTICS
-
 async function updateOverview() {
     try {
-        // Get registered players
-        const playersSnapshot = await getDocs(
-            collection(db, "users")
-        );
+        const players = await getDocs(collection(db, "users"));
+        const tournaments = await getDocs(collection(db, "tournaments"));
 
-        // Get tournaments
-        const tournamentsSnapshot = await getDocs(
-            collection(db, "tournaments")
-        );
-
-        // Update dashboard numbers
-        $("totalPlayers").textContent =
-            playersSnapshot.size;
-
-        $("totalTournaments").textContent =
-            tournamentsSnapshot.size;
-
-        // Match statistics will be connected later
+        $("totalPlayers").textContent = players.size;
+        $("totalTournaments").textContent = tournaments.size;
         $("activeMatches").textContent = "0";
         $("completedMatches").textContent = "0";
-
-        console.log("Dashboard statistics updated.");
-
     } catch (error) {
-        console.error("Dashboard statistics error:", error);
+        console.error("Overview error:", error);
     }
 }
 
-
-
-// LOAD AND SEARCH REGISTERED PLAYERS
-
+// LOAD AND SEARCH PLAYERS
 let allPlayers = [];
 
 async function loadPlayers() {
@@ -299,16 +164,13 @@ async function loadPlayers() {
         }));
 
         displayPlayers(allPlayers);
-
     } catch (error) {
         console.error("Player loading error:", error);
-        list.textContent = "Could not load players.";
+        list.textContent = "Could not load players: " + error.message;
     }
 }
 
-
 // DISPLAY PLAYERS
-
 function displayPlayers(players) {
     const list = $("playerList");
     list.innerHTML = "";
@@ -335,24 +197,18 @@ function displayPlayers(players) {
     });
 }
 
-
 // LIVE PLAYER SEARCH
-
 $("playerSearch").addEventListener("input", () => {
-    const query = $("playerSearch").value
-        .trim()
-        .toLowerCase();
+    const query = $("playerSearch").value.trim().toLowerCase();
 
-    const filteredPlayers = allPlayers.filter(player =>
+    const filtered = allPlayers.filter(player =>
         (player.name || "").toLowerCase().includes(query) ||
         (player.email || "").toLowerCase().includes(query) ||
         player.uid.toLowerCase().includes(query)
     );
 
-    displayPlayers(filteredPlayers);
+    displayPlayers(filtered);
 });
-
-
 
 // CHECK ADMIN ACCESS
 onAuthStateChanged(auth, async (user) => {
@@ -380,15 +236,13 @@ onAuthStateChanged(auth, async (user) => {
         await updateOverview();
 
     } catch (error) {
-    console.error("Admin verification error:", error);
-    alert("Admin error: " + error.message);
-    await signOut(auth);
+        console.error("Admin verification error:", error);
+        alert("Admin error: " + error.message);
+        await signOut(auth);
     }
 });
 
-
 // CREATE TOURNAMENT
-
 $("createTournamentBtn").onclick = async () => {
     const name = $("tournamentName").value.trim();
     const game = $("gameName").value.trim();
@@ -403,16 +257,14 @@ $("createTournamentBtn").onclick = async () => {
 
     if (!name || !game || !date || !time ||
         entryFee === "" || prizePool === "" || maxPlayers === "") {
-        $("tournamentMessage").textContent =
-            "Please fill all required fields.";
+        $("tournamentMessage").textContent = "Please fill all required fields.";
         return;
     }
 
     if (Number(entryFee) < 0 ||
         Number(prizePool) < 0 ||
         Number(maxPlayers) < 1) {
-        $("tournamentMessage").textContent =
-            "Please enter valid numbers.";
+        $("tournamentMessage").textContent = "Please enter valid numbers.";
         return;
     }
 
@@ -432,8 +284,7 @@ $("createTournamentBtn").onclick = async () => {
             createdAt: serverTimestamp()
         });
 
-        $("tournamentMessage").textContent =
-            "Tournament created successfully!";
+        $("tournamentMessage").textContent = "Tournament created successfully!";
 
         $("tournamentName").value = "";
         $("gameName").value = "";
@@ -445,23 +296,21 @@ $("createTournamentBtn").onclick = async () => {
         $("tournamentDescription").value = "";
 
         await loadTournaments();
+        await updateOverview();
 
     } catch (error) {
         console.error(error);
         $("tournamentMessage").textContent =
-            "Could not create tournament.";
+            "Could not create tournament: " + error.message;
     }
 };
-
 
 // ADMIN LOGOUT
 $("logoutBtn").onclick = async () => {
     await signOut(auth);
 };
 
-
-/* ADMIN PAGE NAVIGATION */
-
+// ADMIN PAGE NAVIGATION
 const pageNames = {
     overview: "Overview",
     tournaments: "Tournament Management",
@@ -485,12 +334,17 @@ document.querySelectorAll(".nav-btn").forEach(button => {
             item.classList.remove("active");
         });
 
-        document.getElementById(page + "Page").classList.add("active");
+        const target = document.getElementById(page + "Page");
 
+        if (!target) {
+            console.error("Missing page:", page + "Page");
+            return;
+        }
+
+        target.classList.add("active");
         button.classList.add("active");
 
-        document.getElementById("pageTitle").textContent =
-            pageNames[page] || "PlayX Admin";
+        $("pageTitle").textContent = pageNames[page] || "PlayX Admin";
     };
 });
         
