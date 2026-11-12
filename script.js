@@ -34,6 +34,7 @@ const dashboardView = $("dashboardView");
 document.getElementById("loginBtn").addEventListener("click", async () => {
   alert("Admin JavaScript is working!");
     const email = $("adminEmail").value.trim();
+  alert("Firebase login handler reached!");
     const password = $("adminPassword").value;
 
     if (!email || !password) {
@@ -491,4 +492,4 @@ document.querySelectorAll(".nav-btn").forEach(button => {
             pageNames[page] || "PlayX Admin";
     };
 });
-                    
+        
