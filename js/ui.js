@@ -19,6 +19,7 @@ const PAGE_ITEMS = [
 
 export function showToast(message, type = "info", duration = 3500) {
   const container = document.getElementById("toastContainer");
+
   if (!container) {
     console.log(`[PlayX ${type}] ${message}`);
     return;
@@ -37,63 +38,111 @@ export function showToast(message, type = "info", duration = 3500) {
 }
 
 function closeMobileSidebar() {
-  document.getElementById("adminSidebar")?.classList.remove("sidebar-open");
-  document.getElementById("sidebarOverlay")?.classList.remove("active");
+  document.getElementById("adminSidebar")
+    ?.classList.remove("sidebar-open");
+
+  document.getElementById("sidebarOverlay")
+    ?.classList.remove("active");
 }
 
 function initSidebar() {
   const sidebar = document.getElementById("adminSidebar");
   const overlay = document.getElementById("sidebarOverlay");
-  const openButton = document.getElementById("sidebarToggle");
-  const closeButton = document.getElementById("sidebarClose");
 
-  const openSidebar = () => {
-    sidebar?.classList.add("sidebar-open");
-    overlay?.classList.add("active");
-  };
+  document.getElementById("sidebarToggle")
+    ?.addEventListener("click", () => {
+      sidebar?.classList.add("sidebar-open");
+      overlay?.classList.add("active");
+    });
 
-  openButton?.addEventListener("click", openSidebar);
-  closeButton?.addEventListener("click", closeMobileSidebar);
+  document.getElementById("sidebarClose")
+    ?.addEventListener("click", closeMobileSidebar);
+
   overlay?.addEventListener("click", closeMobileSidebar);
 
-  document.querySelectorAll(".nav-group-toggle").forEach(button => {
-    button.addEventListener("click", () => {
-      const groupId = button.dataset.group;
-      const group = document.getElementById(groupId);
-      const parent = button.closest(".nav-group");
+  // Delegated click handling for navigation and expandable groups.
+  document.addEventListener("click", event => {
+    const target = event.target;
 
-      if (!group || !parent) return;
+    if (!(target instanceof Element)) return;
 
-      parent.classList.toggle("open");
-    });
+    const groupButton = target.closest(".nav-group-toggle");
+
+    if (groupButton) {
+      event.preventDefault();
+
+      const group = groupButton.closest(".nav-group");
+
+      if (!group) return;
+
+      const isOpen = group.classList.toggle("open");
+
+      groupButton.setAttribute(
+        "aria-expanded",
+        String(isOpen)
+      );
+
+      return;
+    }
+
+    const navLink = target.closest(
+      "#adminNavigation a[data-page]"
+    );
+
+    if (navLink && window.innerWidth <= 800) {
+      closeMobileSidebar();
+    }
   });
 
-  document.querySelectorAll("#adminNavigation [data-page]").forEach(link => {
-    link.addEventListener("click", () => {
-      if (window.innerWidth <= 800) closeMobileSidebar();
-    });
+  // Set initial accessibility state.
+  document.querySelectorAll(".nav-group-toggle").forEach(button => {
+    button.setAttribute("aria-expanded", "false");
   });
 }
 
 function initProfileMenu() {
-  const button = document.getElementById("profileMenuBtn");
   const dropdown = document.getElementById("profileDropdown");
 
-  if (!button || !dropdown) return;
+  if (!dropdown) {
+    console.error("PlayX: profileDropdown element not found.");
+    return;
+  }
 
-  button.addEventListener("click", event => {
-    event.stopPropagation();
-    dropdown.classList.toggle("hidden");
-  });
-
+  // Delegated handling keeps the profile button responsive.
   document.addEventListener("click", event => {
-    if (!event.target.closest("#profileMenu")) {
+    const target = event.target;
+
+    if (!(target instanceof Element)) return;
+
+    const profileButton = target.closest("#profileMenuBtn");
+    const profileMenu = document.getElementById("profileMenu");
+
+    if (profileButton) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      const isHidden = dropdown.classList.contains("hidden");
+
+      dropdown.classList.toggle("hidden", !isHidden);
+
+      profileButton.setAttribute(
+        "aria-expanded",
+        String(isHidden)
+      );
+
+      return;
+    }
+
+    if (!profileMenu?.contains(target)) {
       dropdown.classList.add("hidden");
+
+      document.getElementById("profileMenuBtn")
+        ?.setAttribute("aria-expanded", "false");
     }
   });
 }
 
-function openGlobalModal(title, body, footer = "") {
+export function openGlobalModal(title, body, footer = "") {
   const modal = document.getElementById("globalModal");
   const titleElement = document.getElementById("modalTitle");
   const bodyElement = document.getElementById("modalBody");
@@ -118,28 +167,32 @@ function openGlobalModal(title, body, footer = "") {
   modal.classList.remove("hidden");
 }
 
-function closeGlobalModal() {
-  document.getElementById("globalModal")?.classList.add("hidden");
+export function closeGlobalModal() {
+  document.getElementById("globalModal")
+    ?.classList.add("hidden");
 }
 
 function initModal() {
-  document.getElementById("modalClose")?.addEventListener(
-    "click",
-    closeGlobalModal
-  );
+  document.getElementById("modalClose")
+    ?.addEventListener("click", closeGlobalModal);
 
-  document.querySelectorAll("[data-modal-close]").forEach(element => {
-    element.addEventListener("click", closeGlobalModal);
-  });
+  document.querySelectorAll("[data-modal-close]")
+    .forEach(element => {
+      element.addEventListener("click", closeGlobalModal);
+    });
 
   document.addEventListener("keydown", event => {
-    if (event.key === "Escape") closeGlobalModal();
+    if (event.key === "Escape") {
+      closeGlobalModal();
+    }
   });
 }
 
 function navigateFromSearch(page) {
   document.dispatchEvent(
-    new CustomEvent("playx:navigate", { detail: { page } })
+    new CustomEvent("playx:navigate", {
+      detail: { page }
+    })
   );
 }
 
@@ -184,6 +237,7 @@ function initGlobalSearch() {
         const result = document.createElement("button");
         result.type = "button";
         result.className = "search-result";
+
         result.style.cssText =
           "display:flex;width:100%;padding:12px;margin-bottom:5px;" +
           "border:1px solid var(--border);border-radius:8px;" +
@@ -211,9 +265,10 @@ function initGlobalSearch() {
 }
 
 function initNotificationButton() {
-  document.getElementById("notificationBtn")?.addEventListener("click", () => {
-    navigateFromSearch("notifications");
-  });
+  document.getElementById("notificationBtn")
+    ?.addEventListener("click", () => {
+      navigateFromSearch("notifications");
+    });
 }
 
 export function initUI() {
@@ -224,8 +279,8 @@ export function initUI() {
   initNotificationButton();
 
   const year = document.getElementById("currentYear");
-  if (year) year.textContent = new Date().getFullYear();
-}
 
-export { closeGlobalModal, openGlobalModal };
-   
+  if (year) {
+    year.textContent = new Date().getFullYear();
+  }
+}
