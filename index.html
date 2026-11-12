@@ -1,446 +1,281 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#155eef">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0b1020">
+  <meta name="description" content="PlayX esports tournament administration">
+  <title>PlayX Admin</title>
 
-    <title>PlayX Admin</title>
-
-    <!-- Shared styles -->
-    <link rel="stylesheet" href="css/base.css">
-    <link rel="stylesheet" href="css/layout.css">
-    <link rel="stylesheet" href="css/components.css">
-    <link rel="stylesheet" href="css/forms.css">
-    <link rel="stylesheet" href="css/tables.css">
-    <link rel="stylesheet" href="css/responsive.css">
+  <link rel="stylesheet" href="./css/base.css">
+  <link rel="stylesheet" href="./css/layout.css">
+  <link rel="stylesheet" href="./css/components.css">
+  <link rel="stylesheet" href="./css/forms.css">
+  <link rel="stylesheet" href="./css/tables.css">
+  <link rel="stylesheet" href="./css/responsive.css">
 </head>
 
 <body>
+  <div id="app">
 
-    <!-- GLOBAL LOADING SCREEN -->
-    <div id="loadingScreen" class="loading-screen">
-        <div class="loader"></div>
-        <p>Loading PlayX Admin...</p>
-    </div>
+    <!-- LOGIN -->
+    <section id="loginView" class="login-view">
+      <div class="login-decoration decoration-one"></div>
+      <div class="login-decoration decoration-two"></div>
 
-
-    <!-- LOGIN SCREEN -->
-    <section id="loginView" class="login-view hidden">
-
-        <div class="login-card">
-
-            <div class="brand-logo">
-                <div class="brand-icon">P</div>
-                <div>
-                    <h1>PlayX</h1>
-                    <span>ADMIN CONTROL CENTER</span>
-                </div>
-            </div>
-
-            <div class="login-heading">
-                <h2>Welcome back</h2>
-                <p>Sign in to manage your esports platform.</p>
-            </div>
-
-            <form id="loginForm">
-
-                <div class="form-group">
-                    <label for="adminEmail">Email address</label>
-                    <input
-                        type="email"
-                        id="adminEmail"
-                        placeholder="Enter admin email"
-                        autocomplete="username"
-                        required
-                    >
-                </div>
-
-                <div class="form-group">
-                    <label for="adminPassword">Password</label>
-                    <input
-                        type="password"
-                        id="adminPassword"
-                        placeholder="Enter password"
-                        autocomplete="current-password"
-                        required
-                    >
-                </div>
-
-                <button type="submit" id="loginBtn" class="btn btn-primary full-width">
-                    Sign In
-                </button>
-
-            </form>
-
-            <p class="login-footer">
-                PlayX Esports Management Platform
-            </p>
-
+      <div class="login-card">
+        <div class="brand brand-login">
+          <div class="brand-mark">P</div>
+          <div>
+            <div class="brand-name">PLAY<span>X</span></div>
+            <div class="brand-caption">ADMIN CONTROL CENTER</div>
+          </div>
         </div>
 
+        <div class="login-heading">
+          <span class="eyebrow">SECURE ACCESS</span>
+          <h1>Welcome back</h1>
+          <p>Sign in to manage your esports platform.</p>
+        </div>
+
+        <form id="loginForm">
+          <div class="form-group">
+            <label for="loginEmail">Email address</label>
+            <input
+              id="loginEmail"
+              name="email"
+              type="email"
+              placeholder="admin@example.com"
+              autocomplete="username"
+              required
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="loginPassword">Password</label>
+            <input
+              id="loginPassword"
+              name="password"
+              type="password"
+              placeholder="Enter your password"
+              autocomplete="current-password"
+              required
+            >
+          </div>
+
+          <div id="loginError" class="login-error hidden"></div>
+
+          <button id="loginButton" class="btn btn-primary login-submit" type="submit">
+            Sign In <span>→</span>
+          </button>
+        </form>
+
+        <div class="login-security">
+          <span class="security-dot"></span>
+          Protected administrator access
+        </div>
+      </div>
+
+      <div class="login-footer">PLAYX ESPORTS · ADMINISTRATION</div>
     </section>
 
+    <!-- DASHBOARD -->
+    <section id="dashboardView" class="dashboard-view hidden">
 
-    <!-- MAIN APPLICATION -->
-    <div id="dashboardView" class="dashboard hidden">
-
-        <!-- MOBILE OVERLAY -->
-        <div id="sidebarOverlay" class="sidebar-overlay"></div>
-
-
-        <!-- SIDEBAR -->
-        <aside id="adminSidebar" class="sidebar">
-
-            <div class="sidebar-brand">
-
-                <div class="brand-icon">P</div>
-
-                <div class="brand-text">
-                    <h2>PlayX</h2>
-                    <span>ADMIN PANEL</span>
-                </div>
-
-                <button
-                    id="sidebarCloseBtn"
-                    class="icon-btn sidebar-close"
-                    type="button"
-                    aria-label="Close sidebar"
-                >
-                    ×
-                </button>
-
+      <!-- SIDEBAR -->
+      <aside id="adminSidebar" class="sidebar">
+        <div class="sidebar-top">
+          <div class="brand">
+            <div class="brand-mark">P</div>
+            <div>
+              <div class="brand-name">PLAY<span>X</span></div>
+              <div class="brand-caption">ADMIN PANEL</div>
             </div>
+          </div>
 
-
-            <!-- ADMIN PROFILE -->
-            <div class="sidebar-profile">
-
-                <div class="avatar" id="adminAvatar">A</div>
-
-                <div class="profile-info">
-                    <strong id="adminName">Administrator</strong>
-                    <span id="adminRole">Super Admin</span>
-                </div>
-
-            </div>
-
-
-            <!-- NAVIGATION -->
-            <nav id="adminNavigation" class="sidebar-navigation">
-
-                <div class="nav-section-label">MAIN</div>
-
-                <button class="nav-link active" data-page="overview">
-                    <span class="nav-icon">▦</span>
-                    <span>Overview</span>
-                </button>
-
-
-                <!-- TOURNAMENT OPERATIONS -->
-                <div class="nav-group">
-
-                    <button class="nav-group-toggle" data-group="tournamentGroup">
-                        <span class="nav-group-left">
-                            <span class="nav-icon">🏆</span>
-                            <span>Tournament Operations</span>
-                        </span>
-                        <span class="nav-arrow">⌄</span>
-                    </button>
-
-                    <div class="nav-group-items" id="tournamentGroup">
-
-                        <button class="nav-link" data-page="tournaments">
-                            Tournaments
-                        </button>
-
-                        <button class="nav-link" data-page="participants">
-                            Participants
-                        </button>
-
-                        <button class="nav-link" data-page="teams">
-                            Teams
-                        </button>
-
-                        <button class="nav-link" data-page="matches">
-                            Matches
-                        </button>
-
-                        <button class="nav-link" data-page="results">
-                            Results & Rankings
-                        </button>
-
-                    </div>
-
-                </div>
-
-
-                <!-- PLAYER MANAGEMENT -->
-                <div class="nav-group">
-
-                    <button class="nav-group-toggle" data-group="playerGroup">
-                        <span class="nav-group-left">
-                            <span class="nav-icon">👥</span>
-                            <span>Player Management</span>
-                        </span>
-                        <span class="nav-arrow">⌄</span>
-                    </button>
-
-                    <div class="nav-group-items" id="playerGroup">
-
-                        <button class="nav-link" data-page="players">
-                            All Players
-                        </button>
-
-                    </div>
-
-                </div>
-
-
-                <!-- FINANCE -->
-                <div class="nav-group">
-
-                    <button class="nav-group-toggle" data-group="financeGroup">
-                        <span class="nav-group-left">
-                            <span class="nav-icon">₹</span>
-                            <span>Finance</span>
-                        </span>
-                        <span class="nav-arrow">⌄</span>
-                    </button>
-
-                    <div class="nav-group-items" id="financeGroup">
-
-                        <button class="nav-link" data-page="wallet">
-                            Wallet & Transactions
-                        </button>
-
-                    </div>
-
-                </div>
-
-
-                <!-- COMMUNICATION -->
-                <div class="nav-group">
-
-                    <button class="nav-group-toggle" data-group="communicationGroup">
-                        <span class="nav-group-left">
-                            <span class="nav-icon">✉</span>
-                            <span>Communication</span>
-                        </span>
-                        <span class="nav-arrow">⌄</span>
-                    </button>
-
-                    <div class="nav-group-items" id="communicationGroup">
-
-                        <button class="nav-link" data-page="notifications">
-                            Notifications
-                        </button>
-
-                        <button class="nav-link" data-page="support">
-                            Support & Disputes
-                        </button>
-
-                    </div>
-
-                </div>
-
-
-                <!-- ANALYTICS -->
-                <div class="nav-group">
-
-                    <button class="nav-group-toggle" data-group="analyticsGroup">
-                        <span class="nav-group-left">
-                            <span class="nav-icon">▥</span>
-                            <span>Analytics</span>
-                        </span>
-                        <span class="nav-arrow">⌄</span>
-                    </button>
-
-                    <div class="nav-group-items" id="analyticsGroup">
-
-                        <button class="nav-link" data-page="reports">
-                            Reports & Analytics
-                        </button>
-
-                    </div>
-
-                </div>
-
-
-                <!-- PLATFORM MANAGEMENT -->
-                <div class="nav-section-label">PLATFORM</div>
-
-                <div class="nav-group">
-
-                    <button class="nav-group-toggle" data-group="platformGroup">
-                        <span class="nav-group-left">
-                            <span class="nav-icon">⚙</span>
-                            <span>Platform Management</span>
-                        </span>
-                        <span class="nav-arrow">⌄</span>
-                    </button>
-
-                    <div class="nav-group-items" id="platformGroup">
-
-                        <button class="nav-link" data-page="staff">
-                            Staff & Permissions
-                        </button>
-
-                        <button class="nav-link" data-page="settings">
-                            Platform Settings
-                        </button>
-
-                        <button class="nav-link" data-page="activity">
-                            Activity & Security
-                        </button>
-
-                        <button class="nav-link" data-page="system">
-                            System Management
-                        </button>
-
-                    </div>
-
-                </div>
-
-            </nav>
-
-
-            <!-- SIDEBAR FOOTER -->
-            <div class="sidebar-footer">
-
-                <div class="sidebar-version">
-                    PlayX Admin · Version 1.0
-                </div>
-
-                <button id="logoutBtn" class="logout-btn" type="button">
-                    <span>↪</span>
-                    Sign Out
-                </button>
-
-            </div>
-
-        </aside>
-
-
-        <!-- MAIN CONTENT AREA -->
-        <main class="main-area">
-
-            <!-- TOP HEADER -->
-            <header class="topbar">
-
-                <div class="topbar-left">
-
-                    <button
-                        id="sidebarOpenBtn"
-                        class="icon-btn mobile-menu-btn"
-                        type="button"
-                        aria-label="Open sidebar"
-                    >
-                        ☰
-                    </button>
-
-                    <div class="page-heading">
-                        <h1 id="pageTitle">Overview</h1>
-                        <p id="pageBreadcrumb">PlayX / Overview</p>
-                    </div>
-
-                </div>
-
-
-                <div class="topbar-right">
-
-                    <button
-                        id="globalSearchBtn"
-                        class="icon-btn"
-                        type="button"
-                        aria-label="Search"
-                        title="Search"
-                    >
-                        ⌕
-                    </button>
-
-                    <button
-                        id="notificationBtn"
-                        class="icon-btn notification-btn"
-                        type="button"
-                        aria-label="Notifications"
-                    >
-                        ♧
-                        <span id="notificationCount" class="notification-count hidden">
-                            0
-                        </span>
-                    </button>
-
-                    <div class="topbar-profile" id="profileMenu">
-
-                        <div class="avatar small-avatar" id="headerAvatar">A</div>
-
-                        <div class="header-profile-info">
-                            <strong id="headerAdminName">Admin</strong>
-                            <span id="headerAdminRole">Administrator</span>
-                        </div>
-
-                        <button
-                            id="profileMenuBtn"
-                            class="icon-btn"
-                            type="button"
-                            aria-label="Profile menu"
-                        >
-                            ⌄
-                        </button>
-
-                    </div>
-
-                </div>
-
-            </header>
-
-
-            <!-- PAGE CONTENT -->
-            <section class="page-container">
-
-                <div id="pageContent" class="page-content">
-
-                    <!-- HTML PAGE FRAGMENTS LOAD HERE -->
-
-                </div>
-
-            </section>
-
-        </main>
-
-    </div>
-
-
-    <!-- GLOBAL MODAL -->
-    <div id="modalOverlay" class="modal-overlay hidden">
-
-        <div class="modal-card" id="modalCard">
-
-            <div class="modal-header">
-                <h2 id="modalTitle">Confirmation</h2>
-
-                <button id="modalCloseBtn" class="icon-btn" type="button">
-                    ×
-                </button>
-            </div>
-
-            <div id="modalBody" class="modal-body"></div>
-
-            <div id="modalFooter" class="modal-footer"></div>
-
+          <button id="sidebarClose" class="icon-button sidebar-close" type="button"
+            aria-label="Close sidebar">×</button>
         </div>
 
+        <div class="sidebar-section-label">WORKSPACE</div>
+
+        <nav id="adminNavigation" class="sidebar-navigation">
+
+          <a class="nav-link active" href="#overview" data-page="overview">
+            <span class="nav-icon">◫</span>
+            <span>Overview</span>
+          </a>
+
+          <div class="nav-group">
+            <button class="nav-group-toggle" type="button" data-group="tournamentGroup">
+              <span class="nav-icon">🏆</span>
+              <span>Tournament Hub</span>
+              <span class="nav-chevron">⌄</span>
+            </button>
+            <div class="nav-submenu" id="tournamentGroup">
+              <a class="nav-link" href="#tournaments" data-page="tournaments">Tournaments</a>
+              <a class="nav-link" href="#participants" data-page="participants">Participants</a>
+              <a class="nav-link" href="#teams" data-page="teams">Teams</a>
+            </div>
+          </div>
+
+          <div class="nav-group">
+            <button class="nav-group-toggle" type="button" data-group="matchGroup">
+              <span class="nav-icon">🎮</span>
+              <span>Match Operations</span>
+              <span class="nav-chevron">⌄</span>
+            </button>
+            <div class="nav-submenu" id="matchGroup">
+              <a class="nav-link" href="#matches" data-page="matches">Matches</a>
+              <a class="nav-link" href="#results" data-page="results">Results</a>
+            </div>
+          </div>
+
+          <a class="nav-link" href="#players" data-page="players">
+            <span class="nav-icon">♙</span>
+            <span>Players</span>
+          </a>
+
+          <div class="sidebar-section-label sidebar-label-spaced">MANAGEMENT</div>
+
+          <a class="nav-link" href="#wallet" data-page="wallet">
+            <span class="nav-icon">₹</span>
+            <span>Wallet & Payments</span>
+          </a>
+
+          <a class="nav-link" href="#notifications" data-page="notifications">
+            <span class="nav-icon">♧</span>
+            <span>Notifications</span>
+          </a>
+
+          <a class="nav-link" href="#support" data-page="support">
+            <span class="nav-icon">☏</span>
+            <span>Support Center</span>
+          </a>
+
+          <a class="nav-link" href="#reports" data-page="reports">
+            <span class="nav-icon">▤</span>
+            <span>Reports & Analytics</span>
+          </a>
+
+          <div class="sidebar-section-label sidebar-label-spaced">ADMINISTRATION</div>
+
+          <a class="nav-link" href="#staff" data-page="staff">
+            <span class="nav-icon">♧</span>
+            <span>Staff & Roles</span>
+          </a>
+
+          <a class="nav-link" href="#activity" data-page="activity">
+            <span class="nav-icon">◷</span>
+            <span>Activity Logs</span>
+          </a>
+
+          <a class="nav-link" href="#settings" data-page="settings">
+            <span class="nav-icon">⚙</span>
+            <span>Settings</span>
+          </a>
+
+          <a class="nav-link" href="#system" data-page="system">
+            <span class="nav-icon">▦</span>
+            <span>System Health</span>
+          </a>
+        </nav>
+
+        <div class="sidebar-bottom">
+          <div class="sidebar-admin">
+            <div class="admin-avatar" id="adminAvatar">A</div>
+            <div class="admin-details">
+              <strong id="adminName">Administrator</strong>
+              <span id="adminRole">Admin</span>
+            </div>
+          </div>
+          <button id="logoutBtn" class="logout-button" type="button">
+            <span>↪</span> Sign out
+          </button>
+        </div>
+      </aside>
+
+      <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+      <!-- MAIN AREA -->
+      <main class="main-area">
+
+        <header class="topbar">
+          <div class="topbar-left">
+            <button id="sidebarToggle" class="icon-button mobile-menu-button"
+              type="button" aria-label="Open sidebar">☰</button>
+
+            <div class="breadcrumb">
+              <span>PlayX</span>
+              <span class="breadcrumb-divider">/</span>
+              <strong id="currentPageTitle">Overview</strong>
+            </div>
+          </div>
+
+          <div class="topbar-actions">
+            <button id="globalSearchBtn" class="search-trigger" type="button">
+              <span>⌕</span>
+              <span>Search anything...</span>
+              <kbd>⌕</kbd>
+            </button>
+
+            <button id="notificationBtn" class="icon-button notification-button"
+              type="button" aria-label="Notifications">
+              ♧
+              <span class="notification-indicator"></span>
+            </button>
+
+            <div class="profile-menu" id="profileMenu">
+              <button id="profileMenuBtn" class="profile-trigger" type="button">
+                <div class="admin-avatar avatar-small" id="headerAvatar">A</div>
+                <div class="header-admin-details">
+                  <strong id="headerAdminName">Administrator</strong>
+                  <span id="headerAdminRole">Admin</span>
+                </div>
+                <span class="profile-chevron">⌄</span>
+              </button>
+              <div id="profileDropdown" class="profile-dropdown hidden">
+                <div class="profile-dropdown-info">
+                  <strong id="dropdownAdminName">Administrator</strong>
+                  <span id="dropdownAdminRole">Admin</span>
+                </div>
+                <button type="button" data-action="logout">↪ Sign out</button>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <div id="pageContent" class="page-content">
+          <div class="page-loading">
+            <div class="loading-spinner"></div>
+            <span>Loading PlayX...</span>
+          </div>
+        </div>
+
+        <footer class="main-footer">
+          <span>© <span id="currentYear"></span> PlayX Esports</span>
+          <span>Admin Control Center</span>
+        </footer>
+      </main>
+    </section>
+
+    <!-- GLOBAL MODAL -->
+    <div id="globalModal" class="modal hidden">
+      <div class="modal-backdrop" data-modal-close></div>
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <h3 id="modalTitle">Dialog</h3>
+          <button id="modalClose" class="icon-button" type="button">×</button>
+        </div>
+        <div id="modalBody" class="modal-body"></div>
+        <div id="modalFooter" class="modal-footer"></div>
+      </div>
     </div>
 
-
-    <!-- GLOBAL TOAST -->
+    <!-- TOASTS -->
     <div id="toastContainer" class="toast-container"></div>
+  </div>
 
-
-    <!-- APPLICATION SCRIPT -->
-    <script type="module" src="js/app.js"></script>
-  
+  <script type="module" src="./js/app.js"></script>
 </body>
-</html>
+                </html>
