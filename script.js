@@ -18,16 +18,27 @@ import {
     serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-const $ = (id) => {
-    const element = document.getElementById(id);
-    if (!element) throw new Error("Missing HTML element: " + id);
-    return element;
-};
+// ===================================
+// COMMON FUNCTIONS
+// ===================================
 
-const loginView = $("loginView");
-const dashboardView = $("dashboardView");
+const $ = (id) => document.getElementById(id);
 
+let allPlayers = [];
+let allTournaments = [];
+
+function showMessage(id, message) {
+    const element = $(id);
+    if (element) element.textContent = message;
+}
+
+function getTournament(id) {
+    return allTournaments.find(item => item.id === id);
+}
+
+// ===================================
 // ADMIN LOGIN
+// ===================================
 
 $("loginBtn").addEventListener("click", async () => {
     const email = $("adminEmail").value.trim();
@@ -42,11 +53,178 @@ $("loginBtn").addEventListener("click", async () => {
         await signInWithEmailAndPassword(auth, email, password);
     } catch (error) {
         console.error("Login error:", error);
-        alert("Login failed. Please check your email and password.");
+        alert("Login failed. Check your email and password.");
     }
 });
 
+$("adminPassword").addEventListener("keydown", event => {
+    if (event.key === "Enter") $("loginBtn").click();
+});
+
+// ===================================
+// ADMIN SESSION AND AUTHORIZATION
+// ===================================
+
+onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+        $("loginView").hidden = false;
+        $("dashboardView").hidden = true;
+        return;
+    }
+
+    try {
+        const adminRef = doc(db, "admins", user.uid);
+        const adminSnap = await getDoc(adminRef);
+
+        if (!adminSnap.exists() || adminSnap.data().Active !== true) {
+            alert("This account is not authorized as an admin.");
+            await signOut(auth);
+            return;
+        }
+
+        $("loginView").hidden = true;
+        $("dashboardView").hidden = false;
+
+        await loadTournaments();
+        await loadPlayers();
+        await updateOverview();
+
+    } catch (error) {
+        console.error("Admin verification error:", error);
+        alert("Admin error: " + error.message);
+        await signOut(auth);
+    }
+});
+
+// ===================================
+// ADMIN LOGOUT
+// ===================================
+
+$("logoutBtn").addEventListener("click", async () => {
+    try {
+        await signOut(auth);
+    } catch (error) {
+        alert("Could not sign out: " + error.message);
+    }
+});
+
+// ===================================
+// PAGE NAVIGATION
+// ===================================
+
+const pageNames = {
+    overview: "Overview",
+    tournaments: "Tournament Management",
+    players: "Player Management",
+    participants: "Tournament Participants",
+    matches: "Match Management",
+    results: "Results Management",
+    wallet: "Wallet Management",
+    settings: "Platform Settings"
+};
+
+document.querySelectorAll(".nav-btn").forEach(button => {
+    button.addEventListener("click", () => {
+        const page = button.dataset.page;
+
+        document.querySelectorAll(".page").forEach(section => {
+            section.classList.remove("active");
+        });
+
+        document.querySelectorAll(".nav-btn").forEach(item => {
+            item.classList.remove("active");
+        });
+
+        const target = $(page + "Page");
+
+        if (!target) {
+            console.error("Missing page:", page + "Page");
+            return;
+        }
+
+        target.classList.add("active");
+        button.classList.add("active");
+
+        $("pageTitle").textContent = pageNames[page] || "PlayX Admin";
+    });
+});
+
+// ===================================
+// CREATE TOURNAMENT
+// ===================================
+
+$("createTournamentBtn").addEventListener("click", async () => {
+    const name = $("tournamentName").value.trim();
+    const game = $("gameName").value;
+    const mode = $("gameMode").value;
+    const map = $("gameMap").value;
+    const date = $("tournamentDate").value;
+    const time = $("tournamentTime").value;
+    const entryFee = Number($("entryFee").value);
+    const prizePool = Number($("prizePool").value);
+    const maxPlayers = Number($("maxPlayers").value);
+    const description = $("tournamentDescription").value.trim();
+
+    if (!name || !date || !time || !maxPlayers) {
+        alert("Enter tournament name, date, time and maximum players.");
+        return;
+    }
+
+    if (
+        entryFee < 0 ||
+        prizePool < 0 ||
+        maxPlayers < 1 ||
+        !Number.isInteger(maxPlayers)
+    ) {
+        alert("Enter valid tournament amounts and player limit.");
+        return;
+    }
+
+    try {
+        $("createTournamentBtn").disabled = true;
+        showMessage("tournamentMessage", "Creating tournament...");
+
+        await addDoc(collection(db, "tournaments"), {
+            name,
+            game,
+            mode,
+            map,
+            date,
+            time,
+            entryFee,
+            prizePool,
+            maxPlayers,
+            filled: 0,
+            description,
+            status: "open",
+            createdAt: serverTimestamp()
+        });
+
+        $("tournamentName").value = "";
+        $("tournamentDate").value = "";
+        $("tournamentTime").value = "";
+        $("entryFee").value = "";
+        $("prizePool").value = "";
+        $("maxPlayers").value = "";
+        $("tournamentDescription").value = "";
+
+        showMessage("tournamentMessage", "Tournament created successfully!");
+
+        await loadTournaments();
+        await updateOverview();
+
+    } catch (error) {
+        console.error("Tournament creation error:", error);
+        showMessage("tournamentMessage", "Error: " + error.message);
+    } finally {
+        $("createTournamentBtn").disabled = false;
+    }
+});
+
+// ===================================
 // LOAD TOURNAMENTS
+// ===================================
+
 async function loadTournaments() {
     const list = $("tournamentList");
     list.textContent = "Loading tournaments...";
@@ -71,14 +249,18 @@ async function loadTournaments() {
         );
 
         displayTournaments();
+        populateTournamentSelects();
 
     } catch (error) {
         console.error("Tournament loading error:", error);
-        list.textContent = "Could not load tournaments.";
+        list.textContent = "Could not load tournaments: " + error.message;
     }
 }
 
+// ===================================
 // DISPLAY AND FILTER TOURNAMENTS
+// ===================================
+
 function displayTournaments() {
     const list = $("tournamentList");
     const search = $("tournamentSearch").value.trim().toLowerCase();
@@ -121,34 +303,159 @@ function displayTournaments() {
             "/" + (tournament.maxPlayers || 0) +
             " | Status: " + (tournament.status || "unknown");
 
-        card.append(title, details);
+        // EDIT NAME
+        const editButton = document.createElement("button");
+        editButton.textContent = "Edit Name";
+        editButton.style.margin = "8px 5px 0 0";
+
+        editButton.onclick = async () => {
+            const newName = prompt(
+                "Enter new tournament name:",
+                tournament.name || ""
+            );
+
+            if (newName === null) return;
+
+            if (!newName.trim()) {
+                alert("Tournament name cannot be empty.");
+                return;
+            }
+
+            try {
+                await updateDoc(doc(db, "tournaments", tournament.id), {
+                    name: newName.trim()
+                });
+
+                await loadTournaments();
+                alert("Tournament name updated.");
+            } catch (error) {
+                alert("Could not edit tournament: " + error.message);
+            }
+        };
+
+        // OPEN / CLOSE REGISTRATION
+        const statusButton = document.createElement("button");
+        statusButton.style.margin = "8px 5px 0 0";
+
+        if (tournament.status === "open") {
+            statusButton.textContent = "Close Registration";
+        } else if (tournament.status === "closed") {
+            statusButton.textContent = "Reopen Registration";
+        } else {
+            statusButton.textContent = "Tournament Full";
+            statusButton.disabled = true;
+        }
+
+        statusButton.onclick = async () => {
+            if (tournament.status === "full") return;
+
+            const newStatus =
+                tournament.status === "open" ? "closed" : "open";
+
+            if (
+                newStatus === "open" &&
+                tournament.registeredPlayers >= Number(tournament.maxPlayers || 0)
+            ) {
+                alert("Cannot reopen. Tournament is full.");
+                return;
+            }
+
+            try {
+                await updateDoc(doc(db, "tournaments", tournament.id), {
+                    status: newStatus
+                });
+
+                await loadTournaments();
+                alert("Registration status updated.");
+            } catch (error) {
+                alert("Could not update status: " + error.message);
+            }
+        };
+
+        // DELETE TOURNAMENT
+        const deleteButton = document.createElement("button");
+        deleteButton.textContent = "Delete";
+        deleteButton.style.background = "#dc3545";
+        deleteButton.style.margin = "8px 5px 0 0";
+
+        if (tournament.registeredPlayers > 0) {
+            deleteButton.disabled = true;
+            deleteButton.title = "Remove participants before deleting.";
+        }
+
+        deleteButton.onclick = async () => {
+            if (tournament.registeredPlayers > 0) {
+                alert("This tournament has participants. It cannot be deleted yet.");
+                return;
+            }
+
+            if (!confirm("Delete this tournament permanently?")) return;
+
+            try {
+                await deleteDoc(doc(db, "tournaments", tournament.id));
+
+                await loadTournaments();
+                await updateOverview();
+
+                alert("Tournament deleted.");
+            } catch (error) {
+                alert("Could not delete tournament: " + error.message);
+            }
+        };
+
+        card.append(
+            title,
+            details,
+            editButton,
+            statusButton,
+            deleteButton
+        );
+
         list.appendChild(card);
     });
 }
 
-// TOURNAMENT SEARCH
 $("tournamentSearch").addEventListener("input", displayTournaments);
-
-// TOURNAMENT FILTER
 $("tournamentFilter").addEventListener("change", displayTournaments);
 
-// UPDATE DASHBOARD STATISTICS
-async function updateOverview() {
-    try {
-        const players = await getDocs(collection(db, "users"));
-        const tournaments = await getDocs(collection(db, "tournaments"));
+// ===================================
+// TOURNAMENT SELECT MENUS
+// ===================================
 
-        $("totalPlayers").textContent = players.size;
-        $("totalTournaments").textContent = tournaments.size;
-        $("activeMatches").textContent = "0";
-        $("completedMatches").textContent = "0";
-    } catch (error) {
-        console.error("Overview error:", error);
-    }
+function populateTournamentSelects() {
+    const selectIds = [
+        "participantTournament",
+        "matchTournament",
+        "resultTournament"
+    ];
+
+    selectIds.forEach(id => {
+        const select = $(id);
+        const previousValue = select.value;
+
+        select.innerHTML = "";
+
+        const defaultOption = document.createElement("option");
+        defaultOption.value = "";
+        defaultOption.textContent = "Select a tournament";
+        select.appendChild(defaultOption);
+
+        allTournaments.forEach(tournament => {
+            const option = document.createElement("option");
+            option.value = tournament.id;
+            option.textContent = tournament.name || "Untitled Tournament";
+            select.appendChild(option);
+        });
+
+        if (getTournament(previousValue)) {
+            select.value = previousValue;
+        }
+    });
 }
 
-// LOAD AND SEARCH PLAYERS
-let allPlayers = [];
+// ===================================
+// LOAD PLAYERS
+// ===================================
 
 async function loadPlayers() {
     const list = $("playerList");
@@ -163,13 +470,17 @@ async function loadPlayers() {
         }));
 
         displayPlayers(allPlayers);
+
     } catch (error) {
         console.error("Player loading error:", error);
         list.textContent = "Could not load players: " + error.message;
     }
 }
 
-// DISPLAY PLAYERS
+// ===================================
+// DISPLAY AND SEARCH PLAYERS
+// ===================================
+
 function displayPlayers(players) {
     const list = $("playerList");
     list.innerHTML = "";
@@ -180,7 +491,7 @@ function displayPlayers(players) {
     }
 
     players.forEach(data => {
-        const player = document.createElement("div");
+        const card = document.createElement("div");
 
         const name = document.createElement("h3");
         name.textContent = data.name || "Unknown Player";
@@ -191,158 +502,217 @@ function displayPlayers(players) {
         const uid = document.createElement("small");
         uid.textContent = "UID: " + data.uid;
 
-        player.append(name, email, uid);
-        list.appendChild(player);
+        card.append(name, email, uid);
+        list.appendChild(card);
     });
 }
 
-// LIVE PLAYER SEARCH
 $("playerSearch").addEventListener("input", () => {
-    const query = $("playerSearch").value.trim().toLowerCase();
+    const search = $("playerSearch").value.trim().toLowerCase();
 
     const filtered = allPlayers.filter(player =>
-        (player.name || "").toLowerCase().includes(query) ||
-        (player.email || "").toLowerCase().includes(query) ||
-        player.uid.toLowerCase().includes(query)
+        (player.name || "").toLowerCase().includes(search) ||
+        (player.email || "").toLowerCase().includes(search) ||
+        (player.uid || "").toLowerCase().includes(search)
     );
 
     displayPlayers(filtered);
 });
 
-// CHECK ADMIN ACCESS
-onAuthStateChanged(auth, async (user) => {
-    if (!user) {
-        loginView.hidden = false;
-        dashboardView.hidden = true;
+// ===================================
+// LOAD PARTICIPANTS
+// ===================================
+
+$("participantTournament").addEventListener("change", async () => {
+    const tournamentId = $("participantTournament").value;
+    const list = $("participantList");
+
+    if (!tournamentId) {
+        list.textContent = "Select a tournament to view participants.";
         return;
     }
+
+    list.textContent = "Loading participants...";
 
     try {
-        const adminRef = doc(db, "admins", user.uid);
-        const adminSnap = await getDoc(adminRef);
+        const snapshot = await getDocs(
+            collection(db, "tournaments", tournamentId, "participants")
+        );
 
-        if (!adminSnap.exists() || adminSnap.data().Active !== true) {
-    alert("This account is not authorized as an admin.");
-    await signOut(auth);
-    return;
-        }
+        list.innerHTML = "";
 
-        loginView.hidden = true;
-        dashboardView.hidden = false;
-
-        await loadTournaments();
-        await loadPlayers();
-        await updateOverview();
-
-    } catch (error) {
-        console.error("Admin verification error:", error);
-        alert("Admin error: " + error.message);
-        await signOut(auth);
-    }
-});
-
-// CREATE TOURNAMENT
-$("createTournamentBtn").onclick = async () => {
-    const name = $("tournamentName").value.trim();
-    const game = $("gameName").value.trim();
-    const mode = $("gameMode").value;
-    const map = $("gameMap").value;
-    const date = $("tournamentDate").value;
-    const time = $("tournamentTime").value;
-    const entryFee = $("entryFee").value;
-    const prizePool = $("prizePool").value;
-    const maxPlayers = $("maxPlayers").value;
-    const description = $("tournamentDescription").value.trim();
-
-    if (!name || !game || !date || !time ||
-        entryFee === "" || prizePool === "" || maxPlayers === "") {
-        $("tournamentMessage").textContent = "Please fill all required fields.";
-        return;
-    }
-
-    if (Number(entryFee) < 0 ||
-        Number(prizePool) < 0 ||
-        Number(maxPlayers) < 1) {
-        $("tournamentMessage").textContent = "Please enter valid numbers.";
-        return;
-    }
-
-    try {
-        await addDoc(collection(db, "tournaments"), {
-            name,
-            game,
-            mode,
-            map,
-            date,
-            time,
-            entryFee: Number(entryFee),
-            prizePool: Number(prizePool),
-            maxPlayers: Number(maxPlayers),
-            description,
-            status: "open",
-            createdAt: serverTimestamp()
-        });
-
-        $("tournamentMessage").textContent = "Tournament created successfully!";
-
-        $("tournamentName").value = "";
-        $("gameName").value = "";
-        $("tournamentDate").value = "";
-        $("tournamentTime").value = "";
-        $("entryFee").value = "";
-        $("prizePool").value = "";
-        $("maxPlayers").value = "";
-        $("tournamentDescription").value = "";
-
-        await loadTournaments();
-        await updateOverview();
-
-    } catch (error) {
-        console.error(error);
-        $("tournamentMessage").textContent =
-            "Could not create tournament: " + error.message;
-    }
-};
-
-// ADMIN LOGOUT
-$("logoutBtn").onclick = async () => {
-    await signOut(auth);
-};
-
-// ADMIN PAGE NAVIGATION
-const pageNames = {
-    overview: "Overview",
-    tournaments: "Tournament Management",
-    players: "Player Management",
-    participants: "Tournament Participants",
-    matches: "Match Management",
-    results: "Results Management",
-    wallet: "Wallet Management",
-    settings: "Platform Settings"
-};
-
-document.querySelectorAll(".nav-btn").forEach(button => {
-    button.onclick = () => {
-        const page = button.dataset.page;
-
-        document.querySelectorAll(".page").forEach(section => {
-            section.classList.remove("active");
-        });
-
-        document.querySelectorAll(".nav-btn").forEach(item => {
-            item.classList.remove("active");
-        });
-
-        const target = document.getElementById(page + "Page");
-
-        if (!target) {
-            console.error("Missing page:", page + "Page");
+        if (snapshot.empty) {
+            list.textContent = "No participants registered.";
             return;
         }
 
-        target.classList.add("active");
-        button.classList.add("active");
+        snapshot.forEach(item => {
+            const data = item.data();
+            const card = document.createElement("div");
 
-        $("pageTitle").textContent = pageNames[page] || "PlayX Admin";
-    };
+            const name = document.createElement("h3");
+            name.textContent = data.playerName || "Unknown Player";
+
+            const uid = document.createElement("small");
+            uid.textContent = "Player UID: " + item.id;
+
+            card.append(name, uid);
+            list.appendChild(card);
+        });
+
+    } catch (error) {
+        console.error("Participant error:", error);
+        list.textContent = "Could not load participants: " + error.message;
+    }
 });
+
+// ===================================
+// SAVE MATCH DETAILS
+// ===================================
+
+$("saveMatchBtn").addEventListener("click", async () => {
+    const tournamentId = $("matchTournament").value;
+    const roomId = $("roomId").value.trim();
+    const roomPassword = $("roomPassword").value.trim();
+
+    if (!tournamentId || !roomId || !roomPassword) {
+        alert("Select a tournament and enter room ID and password.");
+        return;
+    }
+
+    try {
+        await updateDoc(doc(db, "tournaments", tournamentId), {
+            roomId,
+            roomPassword,
+            matchUpdatedAt: serverTimestamp()
+        });
+
+        $("matchList").textContent =
+            "Room details saved successfully for this tournament.";
+
+        alert("Match details saved.");
+
+    } catch (error) {
+        console.error("Match save error:", error);
+        alert("Could not save match details: " + error.message);
+    }
+});
+
+$("matchTournament").addEventListener("change", () => {
+    const tournament = getTournament($("matchTournament").value);
+
+    if (!tournament) {
+        $("roomId").value = "";
+        $("roomPassword").value = "";
+        $("matchList").textContent = "Select a tournament.";
+        return;
+    }
+
+    $("roomId").value = tournament.roomId || "";
+    $("roomPassword").value = tournament.roomPassword || "";
+
+    $("matchList").textContent = tournament.roomId
+        ? "Saved Room ID: " + tournament.roomId
+        : "No match room details saved yet.";
+});
+
+// ===================================
+// PUBLISH RESULT
+// ===================================
+
+$("publishResultBtn").addEventListener("click", async () => {
+    const tournamentId = $("resultTournament").value;
+    const winnerName = $("winnerName").value.trim();
+    const winnerUid = $("winnerUid").value.trim();
+    const winnerPrize = Number($("winnerPrize").value);
+
+    if (!tournamentId || !winnerName || !winnerUid || $("winnerPrize").value === "") {
+        alert("Complete all result fields.");
+        return;
+    }
+
+    if (!Number.isFinite(winnerPrize) || winnerPrize < 0) {
+        alert("Enter a valid prize amount.");
+        return;
+    }
+
+    try {
+        await updateDoc(doc(db, "tournaments", tournamentId), {
+            result: {
+                winnerName,
+                winnerUid,
+                winnerPrize,
+                publishedAt: new Date().toISOString()
+            },
+            status: "completed"
+        });
+
+        $("resultList").textContent =
+            "Result published: " + winnerName +
+            " | Prize: ₹" + winnerPrize;
+
+        $("winnerName").value = "";
+        $("winnerUid").value = "";
+        $("winnerPrize").value = "";
+
+        await loadTournaments();
+        await updateOverview();
+
+        alert("Result published.");
+
+    } catch (error) {
+        console.error("Result error:", error);
+        alert("Could not publish result: " + error.message);
+    }
+});
+
+$("resultTournament").addEventListener("change", () => {
+    const tournament = getTournament($("resultTournament").value);
+
+    if (!tournament) {
+        $("resultList").textContent = "Select a tournament.";
+        return;
+    }
+
+    if (tournament.result) {
+        $("resultList").textContent =
+            "Winner: " + tournament.result.winnerName +
+            " | UID: " + tournament.result.winnerUid +
+            " | Prize: ₹" + tournament.result.winnerPrize;
+    } else {
+        $("resultList").textContent = "No result published yet.";
+    }
+});
+
+//====================================
+// DASHBOARD STATISTICS
+// ===================================
+
+async function updateOverview() {
+    try {
+        const players = await getDocs(collection(db, "users"));
+        const tournaments = await getDocs(collection(db, "tournaments"));
+
+        $("totalPlayers").textContent = players.size;
+        $("totalTournaments").textContent = tournaments.size;
+
+        let active = 0;
+        let completed = 0;
+
+        tournaments.forEach(item => {
+            const data = item.data();
+
+            if (data.result || data.status === "completed") {
+                completed++;
+            } else if (data.roomId) {
+                active++;
+            }
+        });
+
+        $("activeMatches").textContent = active;
+        $("completedMatches").textContent = completed;
+
+    } catch (error) {
+        console.error("Overview error:", error);
+    }
+}
