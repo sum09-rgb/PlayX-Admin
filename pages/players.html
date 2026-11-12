@@ -1,0 +1,183 @@
+<section class="players-page">
+
+  <div class="players-heading">
+    <div>
+      <h2>Player Management</h2>
+      <p>View registered players and their tournament activity.</p>
+    </div>
+
+    <button type="button" class="players-secondary-btn" id="refreshPlayersBtn">
+      ↻ Refresh
+    </button>
+  </div>
+
+  <div class="players-stats">
+
+    <div class="players-stat-card">
+      <span>Total Players</span>
+      <strong id="playersTotal">0</strong>
+    </div>
+
+    <div class="players-stat-card">
+      <span>Registered Today</span>
+      <strong id="playersToday">0</strong>
+    </div>
+
+    <div class="players-stat-card">
+      <span>Registered This Month</span>
+      <strong id="playersMonth">0</strong>
+    </div>
+
+  </div>
+
+  <div class="players-toolbar">
+
+    <div class="players-search">
+      <input
+        type="search"
+        id="playersSearch"
+        placeholder="Search name, email or player UID..."
+        autocomplete="off"
+      >
+    </div>
+
+    <select id="playersDateFilter">
+      <option value="all">All Registration Dates</option>
+      <option value="today">Registered Today</option>
+      <option value="month">Registered This Month</option>
+    </select>
+
+  </div>
+
+  <div class="players-table-card">
+
+    <div class="players-table-heading">
+      <div>
+        <h3>Registered Players</h3>
+        <p>Player accounts from the PlayX database.</p>
+      </div>
+
+      <span class="players-result-count" id="playersResultCount">
+        0 players
+      </span>
+    </div>
+
+    <div class="players-table-wrapper">
+
+      <table class="players-table">
+
+        <thead>
+          <tr>
+            <th>Player</th>
+            <th>Email</th>
+            <th>Player UID</th>
+            <th>Registration Date</th>
+            <th>Account</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+
+        <tbody id="playersTableBody">
+          <tr>
+            <td colspan="6" class="players-empty">
+              Loading players...
+            </td>
+          </tr>
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+  <!-- Player Profile Modal -->
+
+  <div class="player-modal" id="playerModal" hidden>
+
+    <div class="player-modal-backdrop" data-close-player-modal></div>
+
+    <div class="player-modal-content">
+
+      <div class="player-modal-header">
+
+        <div>
+          <h3>Player Profile</h3>
+          <p>Account information and tournament history.</p>
+        </div>
+
+        <button
+          type="button"
+          class="player-modal-close"
+          id="closePlayerModal"
+        >
+          ×
+        </button>
+
+      </div>
+
+      <div class="player-profile">
+
+        <div class="player-profile-avatar" id="profileAvatar">P</div>
+
+        <div class="player-profile-heading">
+          <h3 id="profileName">Player</h3>
+          <span id="profileAccountStatus">Registered Account</span>
+        </div>
+
+      </div>
+
+      <div class="player-details-grid">
+
+        <div class="player-detail-item">
+          <span>Email Address</span>
+          <strong id="profileEmail">-</strong>
+        </div>
+
+        <div class="player-detail-item">
+          <span>Player UID</span>
+          <strong id="profileUID">-</strong>
+        </div>
+
+        <div class="player-detail-item">
+          <span>Account Role</span>
+          <strong id="profileRole">Player</strong>
+        </div>
+
+        <div class="player-detail-item">
+          <span>Registration Date</span>
+          <strong id="profileCreatedAt">-</strong>
+        </div>
+
+      </div>
+
+      <div class="player-history-section">
+
+        <div class="player-history-heading">
+          <h4>Tournament Participation</h4>
+          <span id="profileTournamentCount">0 tournaments</span>
+        </div>
+
+        <div id="profileTournamentHistory" class="player-history-list">
+          <p class="players-empty">Select a player to view history.</p>
+        </div>
+
+      </div>
+
+      <div class="player-modal-actions">
+
+        <button
+          type="button"
+          class="players-secondary-btn"
+          id="closePlayerProfileBtn"
+        >
+          Close
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
