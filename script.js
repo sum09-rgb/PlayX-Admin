@@ -14,6 +14,7 @@ import {
     addDoc,
     getDocs,
     deleteDoc,
+    updateDoc,
     serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
@@ -52,85 +53,84 @@ async function loadTournaments() {
 
     try {
         const snapshot = await getDocs(collection(db, "tournaments"));
-        list.innerHTML = "";
 
-        if (snapshot.empty) {
-            list.textContent = "No tournaments created yet.";
-            return;
-        }
+        allTournaments = await Promise.all(
+            snapshot.docs.map(async item => {
+                const data = item.data();
 
-        for (const item of snapshot.docs) {
-            const data = item.data();
+                const participants = await getDocs(
+                    collection(db, "tournaments", item.id, "participants")
+                );
 
-            const participants = await getDocs(
-                collection(db, "tournaments", item.id, "participants")
-            );
+                return {
+                    id: item.id,
+                    ...data,
+                    registeredPlayers: participants.size
+                };
+            })
+        );
 
-            const card = document.createElement("div");
-            const title = document.createElement("h3");
-            title.textContent = data.name || "Untitled Tournament";
-            card.appendChild(title);
+        displayTournaments();
 
-            const details = [
-                ["Game", data.game],
-                ["Mode", data.mode],
-                ["Map", data.map],
-                ["Date", data.date],
-                ["Time", data.time],
-                ["Entry Fee", "₹" + (data.entryFee ?? 0)],
-                ["Prize Pool", "₹" + (data.prizePool ?? 0)],
-                ["Maximum Players", data.maxPlayers],
-                ["Registered Players", participants.size],
-                ["Status", data.status]
-            ];
-
-            details.forEach(([label, value]) => {
-                const p = document.createElement("p");
-                p.textContent = label + ": " + (value ?? "Not specified");
-                card.appendChild(p);
-            });
-
-            const heading = document.createElement("h4");
-            heading.textContent = "Registered Player Names";
-            card.appendChild(heading);
-
-            if (participants.empty) {
-                const p = document.createElement("p");
-                p.textContent = "No players joined yet.";
-                card.appendChild(p);
-            } else {
-                participants.forEach(playerDoc => {
-                    const p = document.createElement("p");
-                    p.textContent = "• " +
-                        (playerDoc.data().playerName || "Unknown Player");
-                    card.appendChild(p);
-                });
-            }
-
-            const deleteButton = document.createElement("button");
-            deleteButton.textContent = "Delete Tournament";
-
-            deleteButton.onclick = async () => {
-                if (!confirm("Delete this tournament?")) return;
-
-                try {
-                    await deleteDoc(doc(db, "tournaments", item.id));
-                    await loadTournaments();
-                    await updateOverview();
-                } catch (error) {
-                    console.error(error);
-                    alert("Could not delete tournament.");
-                }
-            };
-
-            card.appendChild(deleteButton);
-            list.appendChild(card);
-        }
     } catch (error) {
         console.error("Tournament loading error:", error);
-        list.textContent = "Could not load tournaments: " + error.message;
+        list.textContent = "Could not load tournaments.";
     }
 }
+
+// DISPLAY AND FILTER TOURNAMENTS
+function displayTournaments() {
+    const list = $("tournamentList");
+    const search = $("tournamentSearch").value.trim().toLowerCase();
+    const filter = $("tournamentFilter").value;
+
+    list.innerHTML = "";
+
+    const filtered = allTournaments.filter(tournament => {
+        const matchesSearch =
+            (tournament.name || "").toLowerCase().includes(search) ||
+            (tournament.game || "").toLowerCase().includes(search);
+
+        const matchesFilter =
+            filter === "all" || tournament.status === filter;
+
+        return matchesSearch && matchesFilter;
+    });
+
+    if (filtered.length === 0) {
+        list.textContent = "No matching tournaments found.";
+        return;
+    }
+
+    filtered.forEach(tournament => {
+        const card = document.createElement("div");
+
+        const title = document.createElement("h3");
+        title.textContent = tournament.name || "Untitled Tournament";
+
+        const details = document.createElement("p");
+        details.textContent =
+            "Game: " + (tournament.game || "Not specified") +
+            " | Mode: " + (tournament.mode || "Solo") +
+            " | Map: " + (tournament.map || "Not specified") +
+            " | Date: " + (tournament.date || "Not specified") +
+            " | Time: " + (tournament.time || "Not specified") +
+            " | Entry: ₹" + (tournament.entryFee || 0) +
+            " | Prize: ₹" + (tournament.prizePool || 0) +
+            " | Players: " + tournament.registeredPlayers +
+            "/" + (tournament.maxPlayers || 0) +
+            " | Status: " + (tournament.status || "unknown");
+
+        card.append(title, details);
+        list.appendChild(card);
+    });
+}
+
+// TOURNAMENT SEARCH
+$("tournamentSearch").addEventListener("input", displayTournaments);
+
+// TOURNAMENT FILTER
+$("tournamentFilter").addEventListener("change", displayTournaments);
 
 // UPDATE DASHBOARD STATISTICS
 async function updateOverview() {
@@ -346,4 +346,3 @@ document.querySelectorAll(".nav-btn").forEach(button => {
         $("pageTitle").textContent = pageNames[page] || "PlayX Admin";
     };
 });
-                                  
